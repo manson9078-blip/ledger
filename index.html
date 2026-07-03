@@ -925,7 +925,9 @@
 </div>
 
 <!-- hidden iOS haptic trigger: toggling a native switch produces a haptic tick on iOS 17.4+ -->
-<input type="checkbox" switch id="hapticTick" style="position:absolute;left:-9999px;" aria-hidden="true" tabindex="-1">
+<label id="hapticTick" style="position:fixed;left:-9999px;top:0;" aria-hidden="true">
+  <input type="checkbox" switch tabindex="-1">
+</label>
 
 <!-- ── CONFIRM DIALOG ── -->
 <div class="confirm-backdrop" id="confirmBackdrop">
