@@ -538,6 +538,40 @@
   }
   .amount-display .ad-currency { font-size: 20px; color: var(--ink-soft); margin-right: 4px; }
   .amount-display.empty { color: var(--ink-soft); opacity: 0.55; }
+
+  /* ── trip currency ───────────────────────────────── */
+  .cur-toggle { display: flex; gap: 8px; margin-bottom: 2px; }
+  .cur-toggle button {
+    flex: 1; padding: 9px 6px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--input-bg); font-size: 13px; font-weight: 700; color: var(--ink-soft);
+    font-family: inherit; cursor: pointer;
+  }
+  .cur-toggle button.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .amt-convert {
+    text-align: center; margin: -8px 0 12px;
+    font-size: 13.5px; font-weight: 700; color: var(--ink-soft);
+    font-family: "SFMono-Regular", Menlo, monospace;
+    min-height: 18px; letter-spacing: 0.01em;
+  }
+  .amt-convert.hidden { display: none; }
+  .rate-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .rate-row .rate-lead { font-size: 13px; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
+  .rate-input {
+    flex: 1; min-width: 0; padding: 11px 12px; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--input-bg); color: var(--ink);
+    font-size: 14.5px; font-family: "SFMono-Regular", Menlo, monospace; font-weight: 700;
+    text-align: right;
+  }
+  .rate-input:focus { outline: none; border-color: var(--accent); background: var(--input-bg-focus); }
+  .rate-note { margin-top: 9px; font-size: 12px; line-height: 1.5; color: var(--ink-soft); }
+  .rate-note b { color: var(--ink); font-family: "SFMono-Regular", Menlo, monospace; }
+  .cur-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .cur-grid button {
+    padding: 10px 4px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--input-bg); font-size: 12.5px; font-weight: 700; color: var(--ink-soft);
+    font-family: inherit; cursor: pointer;
+  }
+  .cur-grid button.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
   .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .keypad button {
     height: 52px; border-radius: 14px;
@@ -862,6 +896,19 @@
       </div>
     </div>
 
+    <div class="section-heading">Trip currency</div>
+    <div class="settings-card">
+      <div class="cur-grid" id="tripCurGrid"></div>
+      <div class="rate-row" id="rateRow">
+        <span class="rate-lead" id="rateLead">1 ฿ =</span>
+        <input type="text" inputmode="decimal" id="rateInput" class="rate-input" placeholder="0.93" />
+        <span class="rate-lead">NT$</span>
+        <button class="mini-btn" id="rateFetchBtn" onclick="fetchRate()">Live</button>
+      </div>
+      <div class="rate-note" id="rateNote"></div>
+      <button class="pill-btn wide" id="rateSaveBtn" onclick="saveTrip()">Save rate<span class="pill-arrow">→</span></button>
+    </div>
+
     <div class="section-heading">Profiles</div>
     <div class="settings-card">
       <div class="profile-row">
@@ -951,7 +998,9 @@
     </div>
     <div class="field">
       <label>Amount</label>
+      <div class="cur-toggle" id="curToggle" hidden></div>
       <div class="amount-display empty" id="amountDisplay"><span class="ad-currency">NT$</span>0</div>
+      <div class="amt-convert hidden" id="amtConvert"></div>
       <div class="keypad">
         <button onclick="keyTap('1')">1</button>
         <button onclick="keyTap('2')">2</button>
@@ -1028,6 +1077,23 @@ const PAYS = {
   card: { name: "Card", color: "#cac8c0" },
 };
 
+// Everything is stored and settled in TWD. A foreign-currency entry keeps its
+// original amount + the rate used, and `amount` holds the converted TWD value,
+// so every existing total, chart and settlement keeps working untouched.
+const BASE = "TWD";
+const CURRENCIES = {
+  TWD: { symbol: "NT$", label: "TWD", decimals: 0, fallbackRate: 1 },
+  THB: { symbol: "฿", label: "THB · 泰銖", decimals: 0, fallbackRate: 0.98 },
+  JPY: { symbol: "¥", label: "JPY · 日圓", decimals: 0, fallbackRate: 0.21 },
+  USD: { symbol: "US$", label: "USD · 美元", decimals: 2, fallbackRate: 32 },
+  KRW: { symbol: "₩", label: "KRW · 韓元", decimals: 0, fallbackRate: 0.023 },
+  EUR: { symbol: "€", label: "EUR · 歐元", decimals: 2, fallbackRate: 34 },
+};
+// trip.code === BASE means "not travelling" — the add sheet then looks exactly
+// as it did before this feature existed.
+let trip = { code: BASE, rate: 1, updated: 0 };
+let selectedCurrency = BASE;
+
 // minimal line icons for the category album cards
 const CAT_ICONS = {
   food: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v7a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V3"/><path d="M6 12v9"/><path d="M6 3v4"/><path d="M18 3c-1.7 0-3 2-3 5v3h3v10"/></svg>`,
@@ -1044,6 +1110,7 @@ const LS_NAMES = "expensesplit_names";
 const LS_THEME = "expensesplit_theme";
 const LS_AVATAR = "expensesplit_avatar"; // + index
 const LS_ME = "expensesplit_me"; // which person this device belongs to (0/1)
+const LS_TRIP = "expensesplit_trip"; // { code, rate, updated } — travel currency
 
 let db, entriesCol, unsub;
 let currentEntries = [];
@@ -1161,6 +1228,99 @@ document.getElementById("avatarFile").addEventListener("change", (ev) => {
   img.src = url;
 });
 
+/* ── trip currency ───────────────────────────────── */
+function loadTrip() {
+  try {
+    const t = JSON.parse(localStorage.getItem(LS_TRIP) || "null");
+    if (t && CURRENCIES[t.code] && t.rate > 0) trip = { code: t.code, rate: t.rate, updated: t.updated || 0 };
+  } catch (e) { /* keep default TWD */ }
+}
+
+function storeTrip() {
+  localStorage.setItem(LS_TRIP, JSON.stringify(trip));
+}
+
+function curFmt(n, code) {
+  const c = CURRENCIES[code] || CURRENCIES[BASE];
+  return c.symbol + n.toLocaleString("en-US", {
+    minimumFractionDigits: c.decimals, maximumFractionDigits: c.decimals,
+  });
+}
+
+function rateAgeLabel() {
+  if (!trip.updated) return "set manually";
+  const days = Math.floor((Date.now() - trip.updated) / 86400000);
+  if (days <= 0) return "updated today";
+  if (days === 1) return "updated yesterday";
+  return `updated ${days} days ago`;
+}
+
+function renderTripSettings() {
+  document.getElementById("tripCurGrid").innerHTML = Object.entries(CURRENCIES)
+    .map(([k, c]) => {
+      const label = k === BASE ? "Off · 台幣" : c.label;
+      return `<button data-cur="${k}" class="${k === trip.code ? "active" : ""}">${label}</button>`;
+    }).join("");
+
+  const off = trip.code === BASE;
+  document.getElementById("rateRow").style.display = off ? "none" : "";
+  document.getElementById("rateSaveBtn").style.display = off ? "none" : "";
+  const note = document.getElementById("rateNote");
+  if (off) {
+    note.innerHTML = "Pick a currency before a trip — the add sheet then lets you type prices in that currency and stores the NT$ value.";
+    return;
+  }
+  const c = CURRENCIES[trip.code];
+  document.getElementById("rateLead").textContent = `1 ${c.symbol} =`;
+  document.getElementById("rateInput").value = String(trip.rate);
+  const per100 = Math.round(100 / trip.rate);
+  note.innerHTML = `<b>1 ${c.symbol} = ${trip.rate} NT$</b> · <b>NT$100 ≈ ${c.symbol}${per100.toLocaleString("en-US")}</b><br>${rateAgeLabel()} · "Live" fetches today's mid-market rate.`;
+}
+
+document.getElementById("tripCurGrid").addEventListener("click", (ev) => {
+  const btn = ev.target.closest("button");
+  if (!btn) return;
+  const code = btn.dataset.cur;
+  if (code === trip.code) return;
+  // switching currency: start from a sane rate, the user can correct it
+  trip = { code, rate: code === BASE ? 1 : CURRENCIES[code].fallbackRate, updated: 0 };
+  storeTrip();
+  renderTripSettings();
+  if (code !== BASE) fetchRate();
+});
+
+window.saveTrip = function () {
+  const v = parseFloat(document.getElementById("rateInput").value);
+  if (!v || v <= 0) { alert("Enter a rate greater than 0"); return; }
+  trip.rate = Math.round(v * 10000) / 10000;
+  trip.updated = Date.now();
+  storeTrip();
+  renderTripSettings();
+};
+
+window.fetchRate = async function () {
+  if (trip.code === BASE) return;
+  const btn = document.getElementById("rateFetchBtn");
+  const note = document.getElementById("rateNote");
+  btn.textContent = "…";
+  btn.disabled = true;
+  try {
+    const res = await fetch(`https://open.er-api.com/v6/latest/${trip.code}`);
+    const data = await res.json();
+    const r = data?.rates?.TWD;
+    if (!r) throw new Error("no rate in response");
+    trip.rate = Math.round(r * 10000) / 10000;
+    trip.updated = Date.now();
+    storeTrip();
+    renderTripSettings();
+  } catch (e) {
+    note.innerHTML = "Couldn't fetch a live rate (offline?). The rate above still applies — edit it by hand if needed.";
+  } finally {
+    btn.textContent = "Live";
+    btn.disabled = false;
+  }
+};
+
 function loadPrefs() {
   try {
     const names = JSON.parse(localStorage.getItem(LS_NAMES) || "null");
@@ -1172,6 +1332,8 @@ function loadPrefs() {
   applyNames();
   applyAvatars();
   applyTheme(localStorage.getItem(LS_THEME) || "dark");
+  loadTrip();
+  renderTripSettings();
 
   const me = getMe();
   if (me === null) {
@@ -1328,11 +1490,14 @@ function buildEntryEl(e) {
     const splitLabel = e.splitMode === "equal" ? "Split" : e.splitMode === "full" ? "Full pay" : "Personal";
     const cat = CATS[e.category] || CATS.other;
     const pay = PAYS[e.payMethod] || PAYS.cash;
+    // entries saved before the trip-currency feature simply have no `currency`
+    const orig = e.currency && e.currency !== BASE && CURRENCIES[e.currency]
+      ? `${curFmt(e.origAmount, e.currency)} · ` : "";
     el.innerHTML = `
       <div class="avatar p${payerIdx}">${PEOPLE[payerIdx][0]}<img src="${getAvatarSrc(payerIdx)}" alt="" onerror="this.remove()"></div>
       <div class="main">
         <p class="desc">${escapeHtml(e.desc || "(no description)")}</p>
-        <p class="meta">${dateStr} · ${PEOPLE[payerIdx]} paid · ${splitLabel} · ${cat.name} · ${pay.name}</p>
+        <p class="meta">${orig}${dateStr} · ${PEOPLE[payerIdx]} paid · ${splitLabel} · ${cat.name} · ${pay.name}</p>
       </div>
       <div class="amt">${fmt(e.amount)}</div>
       <button class="del" onclick="removeEntry('${e.id}')">✕</button>`;
@@ -1853,6 +2018,8 @@ window.openAdd = function (presetCategory) {
     };
   });
   amountStr = "";
+  selectedCurrency = trip.code; // abroad, prices are quoted in the local currency
+  renderCurToggle();
   renderAmountDisplay();
   document.getElementById("descInput").value = "";
   selectedSplit = "equal";
@@ -1964,10 +2131,43 @@ let amountStr = "";
 
 function renderAmountDisplay() {
   const el = document.getElementById("amountDisplay");
+  const cur = CURRENCIES[selectedCurrency] || CURRENCIES[BASE];
   const shown = amountStr === "" ? "0" : Number(amountStr).toLocaleString("en-US");
-  el.innerHTML = `<span class="ad-currency">NT$</span>${shown}`;
+  el.innerHTML = `<span class="ad-currency">${cur.symbol}</span>${shown}`;
   el.classList.toggle("empty", amountStr === "");
+
+  const conv = document.getElementById("amtConvert");
+  if (selectedCurrency === BASE) {
+    conv.classList.add("hidden");
+  } else {
+    conv.classList.remove("hidden");
+    const twd = (Number(amountStr) || 0) * trip.rate;
+    conv.textContent = `≈ ${fmt(twd)}  ·  1 ${cur.symbol} = ${trip.rate}`;
+  }
 }
+
+function renderCurToggle() {
+  const wrap = document.getElementById("curToggle");
+  if (trip.code === BASE) {
+    wrap.hidden = true;
+    wrap.innerHTML = "";
+    return;
+  }
+  wrap.hidden = false;
+  const codes = [trip.code, BASE]; // trip currency first — it's the one in use abroad
+  wrap.innerHTML = codes.map((k) =>
+    `<button data-cur="${k}" class="${k === selectedCurrency ? "active" : ""}">${CURRENCIES[k].symbol} ${k}</button>`
+  ).join("");
+}
+
+document.getElementById("curToggle").addEventListener("click", (ev) => {
+  const btn = ev.target.closest("button");
+  if (!btn) return;
+  selectedCurrency = btn.dataset.cur;
+  document.querySelectorAll("#curToggle button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderAmountDisplay();
+});
 
 window.keyTap = function (k) {
   haptic(8);
@@ -2012,9 +2212,14 @@ window.closeAdd = function () {
 };
 
 window.submitEntry = function () {
-  const amount = parseFloat(amountStr);
+  const typed = parseFloat(amountStr);
   const desc = document.getElementById("descInput").value.trim();
-  if (!amount || amount <= 0) { alert("Please enter a valid amount"); return; }
+  if (!typed || typed <= 0) { alert("Please enter a valid amount"); return; }
+
+  // `amount` is always TWD so balances, charts and settling stay single-currency
+  const foreign = selectedCurrency !== BASE;
+  const rate = foreign ? trip.rate : 1;
+  const amount = foreign ? typed * rate : typed;
 
   // today keeps the exact server time (preserves same-day ordering);
   // a backdated entry is pinned to noon of the chosen day
@@ -2034,6 +2239,7 @@ window.submitEntry = function () {
     splitMode: selectedSplit,
     category: selectedCategory,
     payMethod: selectedPayMethod,
+    ...(foreign ? { currency: selectedCurrency, origAmount: typed, rate } : {}),
     createdAt,
   }).catch((err) => {
     alert("Failed to save: " + err.message);
