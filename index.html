@@ -524,6 +524,13 @@
     font-size: 12.5px; font-weight: 600; font-family: inherit; cursor: pointer;
   }
   .cal-day:disabled { color: var(--ink-soft); opacity: 0.3; cursor: default; }
+  .cal-day.future { color: var(--ink-soft); }
+  .up-tag {
+    display: inline-block; margin-right: 3px; padding: 0 6px; border-radius: 999px;
+    font-size: 9.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+    line-height: 15px;
+    background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent);
+  }
   .cal-day.today { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35); }
   body.light .cal-day.today { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.3); }
   .cal-day.sel { background: #f2f1ee; color: #111; font-weight: 900; }
@@ -1493,11 +1500,12 @@ function buildEntryEl(e) {
     // entries saved before the trip-currency feature simply have no `currency`
     const orig = e.currency && e.currency !== BASE && CURRENCIES[e.currency]
       ? `${curFmt(e.origAmount, e.currency)} · ` : "";
+    const upTag = entryDate(e) > new Date() ? `<span class="up-tag">Upcoming</span> ` : "";
     el.innerHTML = `
       <div class="avatar p${payerIdx}">${PEOPLE[payerIdx][0]}<img src="${getAvatarSrc(payerIdx)}" alt="" onerror="this.remove()"></div>
       <div class="main">
         <p class="desc">${escapeHtml(e.desc || "(no description)")}</p>
-        <p class="meta">${orig}${dateStr} · ${PEOPLE[payerIdx]} paid · ${splitLabel} · ${cat.name} · ${pay.name}</p>
+        <p class="meta">${upTag}${orig}${dateStr} · ${PEOPLE[payerIdx]} paid · ${splitLabel} · ${cat.name} · ${pay.name}</p>
       </div>
       <div class="amt">${fmt(e.amount)}</div>
       <button class="del" onclick="removeEntry('${e.id}')">✕</button>`;
@@ -1775,10 +1783,21 @@ function inMonth(e, monthDate) {
   return d.getFullYear() === monthDate.getFullYear() && d.getMonth() === monthDate.getMonth();
 }
 
+// the charts may run past the current month once upcoming expenses are booked
+function latestMonth() {
+  const now = new Date();
+  let m = new Date(now.getFullYear(), now.getMonth(), 1);
+  for (const e of currentEntries) {
+    const d = entryDate(e);
+    const em = new Date(d.getFullYear(), d.getMonth(), 1);
+    if (em > m) m = em;
+  }
+  return m;
+}
+
 window.shiftMonth = function (delta) {
   const next = new Date(chartMonth.getFullYear(), chartMonth.getMonth() + delta, 1);
-  const now = new Date();
-  if (next > new Date(now.getFullYear(), now.getMonth(), 1)) return;
+  if (next > latestMonth()) return;
   chartMonth = next;
   renderCharts();
 };
@@ -1901,9 +1920,7 @@ function renderCharts() {
 
   document.getElementById("monthLabel").textContent =
     chartMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  const now = new Date();
-  document.getElementById("monthNext").disabled =
-    chartMonth.getFullYear() === now.getFullYear() && chartMonth.getMonth() === now.getMonth();
+  document.getElementById("monthNext").disabled = chartMonth >= latestMonth();
 
   countUp(document.getElementById("statTotal"), total, (v) => fmt(v));
   document.getElementById("statCount").textContent = expenses.length;
@@ -2082,8 +2099,9 @@ function renderCal() {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   document.getElementById("calLabel").textContent =
     calMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  document.getElementById("calNext").disabled =
-    calMonth.getFullYear() === now.getFullYear() && calMonth.getMonth() === now.getMonth();
+  // future dates are allowed — booked flights, prepaid hotels, planned spending
+  const calMax = new Date(now.getFullYear(), now.getMonth() + 12, 1);
+  document.getElementById("calNext").disabled = calMonth >= calMax;
 
   const firstWd = calMonth.getDay();
   const daysInMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 0).getDate();
@@ -2091,9 +2109,9 @@ function renderCal() {
   for (let i = 0; i < firstWd; i++) html += "<span></span>";
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(calMonth.getFullYear(), calMonth.getMonth(), d);
-    const cls = ["cal-day", sameDay(date, today) ? "today" : "", sameDay(date, pickedDate) ? "sel" : ""].join(" ");
-    const dis = date > today ? "disabled" : "";
-    html += `<button type="button" class="${cls}" ${dis} onclick="calPick(${d})">${d}</button>`;
+    const cls = ["cal-day", sameDay(date, today) ? "today" : "",
+      sameDay(date, pickedDate) ? "sel" : "", date > today ? "future" : ""].join(" ");
+    html += `<button type="button" class="${cls}" onclick="calPick(${d})">${d}</button>`;
   }
   document.getElementById("calGrid").innerHTML = html;
 }
