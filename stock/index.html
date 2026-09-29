@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>每日選股器</title>
+<meta name="theme-color" content="#0b0b0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0b0b;
+    --card: rgba(255,255,255,0.045);
+    --card-border: rgba(255,255,255,0.10);
+    --ink: #f2f1ee;
+    --ink-soft: #8f8d89;
+    --ink-faint: #5d5b58;
+    --line: #262626;
+    --up: #ff5a5f;      /* 台股：紅漲 */
+    --down: #2fc27a;    /* 綠跌 */
+    --flat: #b9b6b0;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+      radial-gradient(120% 70% at 10% -10%, rgba(255,255,255,0.08) 0%, transparent 55%),
+      linear-gradient(165deg, #1a1a1a 0%, #111 45%, #0a0a0a 100%);
+    background-size: 16px 16px, auto, auto;
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: "Noto Sans TC", -apple-system, "PingFang TC", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 28px) 16px 60px; }
+  header h1 { font-size: 30px; font-weight: 900; letter-spacing: 0.02em; margin: 0; }
+  header .sub { color: var(--ink-soft); font-size: 13px; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px 12px; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px;
+          border: 1px solid var(--card-border); font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+  .chip.ai { color: var(--ink); border-color: rgba(255,255,255,0.35); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 20px 0 8px; }
+  .stat { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; }
+  .stat b { display: block; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 12px; color: var(--ink-soft); }
+  .tabs { display: flex; gap: 6px; margin: 22px 0 14px; position: sticky; top: 0; z-index: 5;
+          padding: 10px 0; background: linear-gradient(#0e0e0e 70%, transparent); }
+  .tabs button { flex: 1; font: inherit; font-size: 14px; font-weight: 500; color: var(--ink-soft);
+                 background: var(--card); border: 1px solid var(--card-border); border-radius: 999px;
+                 padding: 8px 0; cursor: pointer; }
+  .tabs button.on { color: #0b0b0b; background: var(--ink); border-color: var(--ink); }
+  .panel { display: none; }
+  .panel.on { display: block; }
+
+  .pick { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+          padding: 14px 14px 12px; margin-bottom: 10px; }
+  .pick .top { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; cursor: pointer; }
+  .rank { font-size: 20px; font-weight: 900; color: var(--ink-faint); text-align: center; font-variant-numeric: tabular-nums; }
+  .pick:nth-child(-n+3) .rank { color: var(--ink); }
+  .nm { min-width: 0; }
+  .nm .n { font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nm .c { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+  .px { text-align: right; font-variant-numeric: tabular-nums; }
+  .px .p { font-size: 16px; font-weight: 700; }
+  .px .d { font-size: 12px; font-weight: 500; }
+  .up { color: var(--up); } .down { color: var(--down); } .flat { color: var(--flat); }
+  .bars { display: grid; grid-template-columns: 1fr 1fr 64px; gap: 12px; margin-top: 12px; align-items: end; }
+  .bar label { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-soft); margin-bottom: 5px; }
+  .bar label b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; position: relative; overflow: hidden; }
+  .fill { position: absolute; top: 0; bottom: 0; left: 0; background: var(--ink); border-radius: 3px; }
+  .senti .track::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: rgba(255,255,255,0.35); }
+  .senti .fill { border-radius: 0; }
+  .score { text-align: right; }
+  .score b { font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; }
+  .score span { display: block; font-size: 11px; color: var(--ink-soft); margin-bottom: 3px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
+  .sig { font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+  .sig.bull { background: rgba(255,90,95,0.15); color: var(--up); }
+  .sig.bear { background: rgba(47,194,122,0.15); color: var(--down); }
+  .sig.neu  { background: rgba(255,255,255,0.08); color: var(--flat); }
+  .summary { font-size: 13px; color: var(--ink); margin-top: 10px; line-height: 1.55; }
+  .links { display: none; margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .pick.open .links { display: block; }
+  .links a { display: flex; gap: 8px; font-size: 13px; color: var(--ink-soft); text-decoration: none; padding: 5px 0; }
+  .links a:hover { color: var(--ink); }
+  .links a em { font-style: normal; color: var(--ink-faint); min-width: 38px; }
+  .links a span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+  .card h3 { margin: 0 0 12px; font-size: 15px; font-weight: 700; }
+  .card p, .card li { font-size: 13px; line-height: 1.7; color: var(--ink-soft); }
+  .card ul { padding-left: 18px; margin: 0; }
+  .card code { font-size: 12px; background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+  svg.chart { width: 100%; height: 180px; display: block; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+  .legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 5px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th { text-align: left; font-weight: 500; color: var(--ink-soft); font-size: 12px; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+  td { padding: 8px 4px; border-bottom: 1px solid var(--line); }
+  td:not(:first-child), th:not(:first-child) { text-align: right; }
+  .btn { display: inline-block; font: inherit; font-size: 13px; color: var(--ink); text-decoration: none;
+         border: 1px solid var(--card-border); border-radius: 999px; padding: 7px 14px; background: var(--card); }
+  .empty { text-align: center; color: var(--ink-soft); padding: 48px 16px; font-size: 14px; line-height: 1.8; }
+  footer { color: var(--ink-faint); font-size: 11px; line-height: 1.7; margin-top: 28px; text-align: center; }
+  @media (max-width: 420px) {
+    .bars { grid-template-columns: 1fr 1fr 52px; gap: 10px; }
+    header h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>每日選股器</h1>
+    <div class="sub" id="sub">載入中…</div>
+  </header>
+  <div class="stats" id="stats"></div>
+
+  <nav class="tabs">
+    <button class="on" data-p="today">今日榜單</button>
+    <button data-p="track">過往績效</button>
+    <button data-p="about">方法說明</button>
+  </nav>
+
+  <section class="panel on" id="p-today"><div id="list"></div></section>
+  <section class="panel" id="p-track"><div id="track"></div></section>
+  <section class="panel" id="p-about">
+    <div class="card">
+      <h3>怎麼選的</h3>
+      <ul>
+        <li><b>資料來源</b>：每個交易日早上 08:00 自動爬 PTT 股板（文章＋推文，含盤中閒聊串）與 Dcard 股票板過去一天的討論。</li>
+        <li><b>聲量 Buzz</b>：提到該股的文章數 ×5 ＋ 留言數，取 log 後正規化成 0–100。</li>
+        <li><b>情緒 Sentiment</b>：有設定 <code>GEMINI_API_KEY</code> 時交給 Gemini 判讀；沒有就用內建股板用語詞典（噴、抱緊、住套房、停損…），並把推／噓納入計算。<code>[標的]</code> 文標題的多／空直接採用。</li>
+        <li><b>總分</b> = 聲量 50% ＋ 情緒 35% ＋ 前一日漲跌動能 15%。</li>
+        <li><b>過往績效</b>：隔天用收盤價回頭檢驗前一天「看多」的股票，並跟 0050 比較。這是誠實的對照組，數字好看不好看都照實記錄。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>下載表格</h3>
+      <p>當日榜單的 CSV（可直接用 Excel 開啟）：</p>
+      <a class="btn" href="data/latest.csv" download>下載 latest.csv</a>
+    </div>
+  </section>
+
+  <footer>
+    本頁為散戶討論聲量與情緒的統計整理，不構成任何投資建議。<br>
+    論壇熱度高常代表已經漲過一段，也可能是反指標；投資請自行判斷風險。
+  </footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const cls = v => v == null ? "flat" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+// TWSE 用民國年 1150929，TPEx/其他可能是 20260929
+const fmtDate = s => { s = String(s || ""); if (/^\d{7}$/.test(s)) s = (+s.slice(0, 3) + 1911) + s.slice(3);
+  return /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}` : s || "—"; };
+const sign = v => v == null ? "—" : (v > 0 ? "+" : "") + v.toFixed(2) + "%";
+
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("on", p.id === "p-" + b.dataset.p));
+});
+
+async function load(path) {
+  try { const r = await fetch(path + "?t=" + Date.now()); return r.ok ? r.json() : null; } catch { return null; }
+}
+
+function pickCard(p) {
+  const s = p.sentiment;
+  const sLeft = s >= 0 ? 50 : 50 + s * 50, sW = Math.abs(s) * 50;
+  const sColor = s >= 0 ? "var(--up)" : "var(--down)";
+  const sig = p.signal === "看多" ? "bull" : p.signal === "看空" ? "bear" : "neu";
+  const links = (p.links || []).map(l =>
+    `<a href="${esc(l.url)}" target="_blank" rel="noopener"><em>${esc(l.src)} ${esc(l.nrec)}</em><span>${esc(l.title)}</span></a>`).join("");
+  return `<article class="pick">
+    <div class="top">
+      <div class="rank">${p.rank}</div>
+      <div class="nm"><div class="n">${esc(p.name || p.code)}</div><div class="c">${esc(p.code)} · ${esc(p.market || "—")}</div></div>
+      <div class="px"><div class="p">${p.close ?? "—"}</div><div class="d ${cls(p.pct)}">${sign(p.pct)}</div></div>
+    </div>
+    <div class="bars">
+      <div class="bar"><label>聲量 <b>${Math.round(p.buzz)}</b></label><div class="track"><div class="fill" style="width:${p.buzz_score}%"></div></div></div>
+      <div class="bar senti"><label>情緒 <b>${s > 0 ? "+" : ""}${s.toFixed(2)}</b></label><div class="track"><div class="fill" style="left:${sLeft}%;width:${sW}%;background:${sColor}"></div></div></div>
+      <div class="score"><span>總分</span><b>${Math.round(p.score)}</b></div>
+    </div>
+    <div class="meta">
+      <span class="sig ${sig}">${esc(p.signal)}</span>
+      <span class="chip">文章 ${p.posts}</span>
+      <span class="chip">留言 ${p.comments}</span>
+      <span class="chip">推 ${p.push} / 噓 ${p.boo}</span>
+      ${p.ai ? '<span class="chip ai">AI</span>' : ""}
+    </div>
+    ${p.summary ? `<div class="summary">${esc(p.summary)}</div>` : ""}
+    ${links ? `<div class="links">${links}</div>` : ""}
+  </article>`;
+}
+
+function renderTrack(track) {
+  if (!track || !track.length) {
+    $("#track").innerHTML = `<div class="card empty">還沒有績效紀錄。<br>選股器跑滿兩個交易日後，這裡會開始比較「前一天看多的股票」與 0050 的表現。</div>`;
+    return;
+  }
+  let a = 1, b = 1;
+  const pts = track.map(t => { a *= 1 + t.avg / 100; b *= 1 + (t.bench ?? 0) / 100; return { d: t.date, a: (a - 1) * 100, b: (b - 1) * 100 }; });
+  const all = pts.flatMap(p => [p.a, p.b]).concat(0);
+  const lo = Math.min(...all), hi = Math.max(...all), span = hi - lo || 1;
+  const W = 600, H = 180, pad = 8;
+  const x = i => pts.length === 1 ? W / 2 : pad + i * (W - 2 * pad) / (pts.length - 1);
+  const y = v => pad + (hi - v) / span * (H - 2 * pad);
+  const line = k => pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join("");
+  const last = pts[pts.length - 1];
+  const wins = track.reduce((s, t) => s + t.win * t.n / 100, 0), n = track.reduce((s, t) => s + t.n, 0);
+  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td><td>${t.n}</td><td>${t.win}%</td>
+      <td class="${cls(t.avg)}">${sign(t.avg)}</td><td class="${cls(t.bench)}">${sign(t.bench)}</td></tr>`).join("");
+  $("#track").innerHTML = `
+    <div class="stats" style="margin-top:0">
+      <div class="stat"><b class="${cls(last.a)}">${sign(last.a)}</b><span>選股累積</span></div>
+      <div class="stat"><b class="${cls(last.b)}">${sign(last.b)}</b><span>0050 累積</span></div>
+      <div class="stat"><b>${n ? Math.round(wins / n * 100) : 0}%</b><span>勝率 · ${n} 檔次</span></div>
+    </div>
+    <div class="card">
+      <h3>累積報酬（每日等權買進前一天看多股）</h3>
+      <svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="rgba(255,255,255,0.15)" stroke-dasharray="3 4"/>
+        <path d="${line("b")}" fill="none" stroke="#6f6d69" stroke-width="2" vector-effect="non-scaling-stroke"/>
+        <path d="${line("a")}" fill="none" stroke="#f2f1ee" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <div class="legend"><span><i style="background:#f2f1ee"></i>選股器</span><span><i style="background:#6f6d69"></i>0050</span></div>
+    </div>
+    <div class="card">
+      <h3>每日紀錄</h3>
+      <table><thead><tr><th>日期</th><th>檔數</th><th>勝率</th><th>平均</th><th>0050</th></tr></thead><tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+(async () => {
+  const [d, track] = await Promise.all([load("data/latest.json"), load("data/track.json")]);
+  renderTrack(track);
+  if (!d) {
+    $("#sub").textContent = "尚無資料";
+    $("#list").innerHTML = `<div class="card empty">還沒有今天的榜單。<br>到 GitHub → Actions → <b>Daily stock picker</b> 按 Run workflow 手動跑一次，<br>之後每個交易日早上 08:00 會自動更新。</div>`;
+    return;
+  }
+  $("#sub").innerHTML = `<span>${esc(d.date)} 更新 · 收盤價 ${esc(fmtDate(d.quote_date))}</span>` +
+    `<span>PTT ${d.sources.PTT || 0} 篇 · Dcard ${d.sources.Dcard || 0} 篇</span>` +
+    (d.ai ? '<span class="chip ai">Gemini 情緒分析</span>' : '<span class="chip">詞典情緒分析</span>');
+  const bulls = d.picks.filter(p => p.signal === "看多").length;
+  $("#stats").innerHTML = `
+    <div class="stat"><b>${(d.sources.PTT || 0) + (d.sources.Dcard || 0)}</b><span>篇文章</span></div>
+    <div class="stat"><b>${d.comments.toLocaleString()}</b><span>則推文</span></div>
+    <div class="stat"><b>${bulls}<small style="font-size:14px;color:var(--ink-soft)"> / ${d.picks.length}</small></b><span>看多檔數</span></div>`;
+  $("#list").innerHTML = d.picks.length ? d.picks.map(pickCard).join("") : `<div class="card empty">今天討論量不足，沒有選出標的。</div>`;
+  document.querySelectorAll(".pick .top").forEach(t => t.onclick = () => t.parentElement.classList.toggle("open"));
+})();
+</script>
+</body>
+</html>
