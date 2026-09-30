@@ -27,6 +27,7 @@ jobs:
       - name: Run picker
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
         run: python stock/picker.py
       - name: Commit data
         run: |

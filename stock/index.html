@@ -22,6 +22,8 @@
     --up: #ff5a5f;      /* 台股：紅漲 */
     --down: #2fc27a;    /* 綠跌 */
     --flat: #b9b6b0;
+    --warn: #e8b04a;
+    --flow: #c9a86a;
     --radius: 16px;
   }
   * { box-sizing: border-box; }
@@ -59,6 +61,7 @@
 
   .pick { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
           padding: 14px 14px 12px; margin-bottom: 10px; }
+  .pick { cursor: pointer; }
   .pick .top { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; cursor: pointer; }
   .rank { font-size: 20px; font-weight: 900; color: var(--ink-faint); text-align: center; font-variant-numeric: tabular-nums; }
   .pick:nth-child(-n+3) .rank { color: var(--ink); }
@@ -84,9 +87,32 @@
   .sig.bull { background: rgba(255,90,95,0.15); color: var(--up); }
   .sig.bear { background: rgba(47,194,122,0.15); color: var(--down); }
   .sig.neu  { background: rgba(255,255,255,0.08); color: var(--flat); }
+  .sig.flow { background: rgba(201,168,106,0.16); color: var(--flow); }
   .summary { font-size: 13px; color: var(--ink); margin-top: 10px; line-height: 1.55; }
+  .bars.two { grid-template-columns: 1fr 1fr 64px; margin-top: 10px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--ink); white-space: nowrap; }
+  .tag.warn { background: rgba(232,176,74,0.14); color: var(--warn); }
+  .detail { display: none; margin-top: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .pick.open .detail { display: block; }
+  .kv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 8px; }
+  .kv div { min-width: 0; }
+  .kv span { display: block; font-size: 11px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kv em { font-style: normal; }
+  .kv b { font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .eps { margin-top: 14px; }
+  .eps h4, .kvh { margin: 0 0 8px; font-size: 12px; font-weight: 500; color: var(--ink-soft); }
+  .kvh { margin-top: 14px; }
+  .eps svg { width: 100%; height: 86px; display: block; }
+  .expand { font-size: 11px; color: var(--ink-faint); margin-top: 8px; text-align: center; }
+  .pick.open .expand { display: none; }
+  .seg { display: flex; gap: 4px; padding: 4px; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; }
+  .seg button { flex: 1; font: inherit; font-size: 13px; color: var(--ink-soft); background: none; border: 0; border-radius: 9px; padding: 7px 0; cursor: pointer; }
+  .seg button.on { background: rgba(255,255,255,0.12); color: var(--ink); font-weight: 500; }
+  .seg-note { font-size: 12px; color: var(--ink-soft); margin: -4px 2px 12px; line-height: 1.6; }
   .links { display: none; margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
   .pick.open .links { display: block; }
+  .detail + .links { border-top: 0; padding-top: 4px; }
   .links a { display: flex; gap: 8px; font-size: 13px; color: var(--ink-soft); text-decoration: none; padding: 5px 0; }
   .links a:hover { color: var(--ink); }
   .links a em { font-style: normal; color: var(--ink-faint); min-width: 38px; }
@@ -128,17 +154,29 @@
     <button data-p="about">方法說明</button>
   </nav>
 
-  <section class="panel on" id="p-today"><div id="list"></div></section>
+  <section class="panel on" id="p-today">
+    <div class="seg" id="seg">
+      <button class="on" data-l="social">社群熱門</button>
+      <button data-l="flow">法人布局</button>
+    </div>
+    <p class="seg-note" id="seg-note"></p>
+    <div id="list"></div>
+  </section>
   <section class="panel" id="p-track"><div id="track"></div></section>
   <section class="panel" id="p-about">
     <div class="card">
       <h3>怎麼選的</h3>
       <ul>
-        <li><b>資料來源</b>：每個交易日早上 08:00 自動爬 PTT 股板（文章＋推文，含盤中閒聊串）與 Dcard 股票板過去一天的討論。</li>
+        <li><b>社群資料</b>：每個交易日早上 08:00 自動爬 PTT 股板（文章＋推文，含盤中閒聊串）與 Dcard 股票板過去一天的討論。</li>
+        <li><b>基本面</b>：證交所／櫃買中心 OpenAPI 的本益比、殖利率、股價淨值比、月營收、季報 EPS 與毛利率；FinMind 補上近 8 季單季 EPS。</li>
+        <li><b>籌碼面</b>：三大法人（外資、投信、自營商）每日買賣超、融資融券增減；FinMind 補上近 10 日連買／連賣天數。</li>
         <li><b>聲量 Buzz</b>：提到該股的文章數 ×5 ＋ 留言數，取 log 後正規化成 0–100。</li>
         <li><b>情緒 Sentiment</b>：有設定 <code>GEMINI_API_KEY</code> 時交給 Gemini 判讀；沒有就用內建股板用語詞典（噴、抱緊、住套房、停損…），並把推／噓納入計算。<code>[標的]</code> 文標題的多／空直接採用。</li>
-        <li><b>總分</b> = 聲量 50% ＋ 情緒 35% ＋ 前一日漲跌動能 15%。</li>
-        <li><b>過往績效</b>：隔天用收盤價回頭檢驗前一天「看多」的股票，並跟 0050 比較。這是誠實的對照組，數字好看不好看都照實記錄。</li>
+        <li><b>基本面分</b>：營收年增率、EPS 是否獲利、單季 EPS 年增率、本益比高低，平均成 0–100。</li>
+        <li><b>籌碼分</b>：三大法人買賣超占成交量比例、外資／投信連續買賣天數、外資 5 日累計方向。</li>
+        <li><b>社群熱門總分</b> = 聲量 20% ＋ 情緒 20% ＋ 基本面 30% ＋ 籌碼 25% ＋ 前一日漲跌 5%。散戶看多但法人賣超時會標示背離警告。</li>
+        <li><b>法人布局</b>：不看論壇，從全市場篩出「營收年增 ≥10%、有獲利、本益比 ≤40、成交量 ≥1,000 張、三大法人買超」的股票，依基本面 45% ＋ 籌碼 55% 排序。常是論壇還沒在討論的標的。</li>
+        <li><b>過往績效</b>：隔天用收盤價回頭檢驗前一天「看多」的社群股與法人布局股，並跟 0050 比較。這是誠實的對照組，數字好看不好看都照實記錄。</li>
       </ul>
     </div>
     <div class="card">
@@ -161,6 +199,9 @@ const cls = v => v == null ? "flat" : v > 0 ? "up" : v < 0 ? "down" : "flat";
 // TWSE 用民國年 1150929，TPEx/其他可能是 20260929
 const fmtDate = s => { s = String(s || ""); if (/^\d{7}$/.test(s)) s = (+s.slice(0, 3) + 1911) + s.slice(3);
   return /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}` : s || "—"; };
+const lots = v => v == null ? "—" : `${v > 0 ? "+" : ""}${Math.round(v).toLocaleString()}`;
+const pctv = (v, d = 1) => v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(d)}%`;
+const numv = (v, d = 2) => v == null ? "—" : v.toFixed(d);
 const sign = v => v == null ? "—" : (v > 0 ? "+" : "") + v.toFixed(2) + "%";
 
 document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
@@ -172,11 +213,58 @@ async function load(path) {
   try { const r = await fetch(path + "?t=" + Date.now()); return r.ok ? r.json() : null; } catch { return null; }
 }
 
+function bar(label, v) {
+  return `<div class="bar"><label>${label} <b>${v == null ? "—" : Math.round(v)}</b></label>
+    <div class="track"><div class="fill" style="width:${v ?? 0}%;background:${v == null ? "transparent" : v >= 60 ? "var(--up)" : v <= 40 ? "var(--down)" : "var(--flat)"}"></div></div></div>`;
+}
+
+function epsChart(q) {
+  if (!q || q.length < 2) return "";
+  const W = 320, H = 86, top = 14, bot = 16, vals = q.map(x => x[1]);
+  const hi = Math.max(0, ...vals), lo = Math.min(0, ...vals), span = hi - lo || 1;
+  const bw = W / q.length, y = v => top + (hi - v) / span * (H - top - bot);
+  const bars = q.map(([per, v], i) => {
+    const y0 = y(Math.max(v, 0)), h = Math.max(1, Math.abs(y(v) - y(0)));
+    return `<rect x="${i * bw + bw * 0.2}" y="${y0}" width="${bw * 0.6}" height="${h}" rx="2" fill="${v >= 0 ? (i === q.length - 1 ? "#f2f1ee" : "#6f6d69") : "var(--down)"}"/>
+      <text x="${i * bw + bw / 2}" y="${y0 - 3}" font-size="9" fill="#b9b6b0" text-anchor="middle">${v}</text>
+      <text x="${i * bw + bw / 2}" y="${H - 3}" font-size="9" fill="#5d5b58" text-anchor="middle">${per.slice(2)}</text>`;
+  }).join("");
+  return `<div class="eps"><h4>單季 EPS（元）</h4><svg viewBox="0 0 ${W} ${H}">${bars}</svg></div>`;
+}
+
+function detail(p) {
+  const f = p.fund;
+  if (!f || !Object.keys(f).length) return "";
+  const kv = (k, v) => `<div><span>${k}</span><b>${v}</b></div>`;
+  const revMonth = f.rev_ym ? `${+f.rev_ym.slice(5)}月` : "";
+  const streak = s => !s ? "—" : `連${s > 0 ? "買" : "賣"} ${Math.abs(s)} 天`;
+  return `<div class="detail">
+    <h4 class="kvh" style="margin-top:0">基本面</h4>
+    <div class="kv">
+      ${kv("本益比", numv(f.pe, 1))}${kv("殖利率", f.dy == null ? "—" : f.dy.toFixed(2) + "%")}${kv("股價淨值比", numv(f.pb))}
+      ${kv(`${revMonth}營收 YoY`, `<em class="${cls(f.rev_yoy)}">${pctv(f.rev_yoy)}</em>`)}
+      ${kv(`${revMonth}營收 MoM`, pctv(f.rev_mom))}${kv(`${f.eps_period ? f.eps_period.slice(0, 4) + " 累計" : "累計"} EPS`, numv(f.eps_ytd))}
+      ${kv("毛利率", f.gross_margin == null ? "—" : f.gross_margin + "%")}${kv("營益率", f.op_margin == null ? "—" : f.op_margin + "%")}
+      ${kv("單季 EPS YoY", f.eps_turnaround ? "轉虧為盈" : f.eps_q_yoy >= 999 ? "倍增" : pctv(f.eps_q_yoy, 0))}
+    </div>
+    ${epsChart(f.eps_q)}
+    <h4 class="kvh">籌碼面（張）</h4>
+    <div class="kv">
+      ${kv("外資", lots(f.foreign))}${kv("投信", lots(f.trust))}${kv("自營商", lots(f.dealer))}
+      ${kv("外資 5 日", lots(f.foreign_5d))}${kv("外資", streak(f.foreign_streak))}${kv("投信", streak(f.trust_streak))}
+      ${kv("融資餘額", f.margin == null ? "—" : Math.round(f.margin).toLocaleString())}${kv("融資增減", lots(f.margin_chg))}${kv("融券增減", lots(f.short_chg))}
+    </div>
+  </div>`;
+}
+
 function pickCard(p) {
-  const s = p.sentiment;
+  const flow = p.buzz == null;
+  const s = p.sentiment ?? 0;
   const sLeft = s >= 0 ? 50 : 50 + s * 50, sW = Math.abs(s) * 50;
   const sColor = s >= 0 ? "var(--up)" : "var(--down)";
-  const sig = p.signal === "看多" ? "bull" : p.signal === "看空" ? "bear" : "neu";
+  const sig = flow ? (p.signal === "法人買" ? "flow" : "neu") : p.signal === "看多" ? "bull" : p.signal === "看空" ? "bear" : "neu";
+  const tags = (p.warnings || []).map(w => `<span class="tag warn">⚠ ${esc(w)}</span>`).join("") +
+    (p.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("");
   const links = (p.links || []).map(l =>
     `<a href="${esc(l.url)}" target="_blank" rel="noopener"><em>${esc(l.src)} ${esc(l.nrec)}</em><span>${esc(l.title)}</span></a>`).join("");
   return `<article class="pick">
@@ -185,20 +273,27 @@ function pickCard(p) {
       <div class="nm"><div class="n">${esc(p.name || p.code)}</div><div class="c">${esc(p.code)} · ${esc(p.market || "—")}</div></div>
       <div class="px"><div class="p">${p.close ?? "—"}</div><div class="d ${cls(p.pct)}">${sign(p.pct)}</div></div>
     </div>
-    <div class="bars">
+    ${flow ? "" : `<div class="bars">
       <div class="bar"><label>聲量 <b>${Math.round(p.buzz)}</b></label><div class="track"><div class="fill" style="width:${p.buzz_score}%"></div></div></div>
       <div class="bar senti"><label>情緒 <b>${s > 0 ? "+" : ""}${s.toFixed(2)}</b></label><div class="track"><div class="fill" style="left:${sLeft}%;width:${sW}%;background:${sColor}"></div></div></div>
+      <div></div>
+    </div>`}
+    <div class="bars two">
+      ${bar("基本面", p.fund_score)}${bar("籌碼", p.flow_score)}
       <div class="score"><span>總分</span><b>${Math.round(p.score)}</b></div>
     </div>
     <div class="meta">
       <span class="sig ${sig}">${esc(p.signal)}</span>
-      <span class="chip">文章 ${p.posts}</span>
+      ${flow ? "" : `<span class="chip">文章 ${p.posts}</span>
       <span class="chip">留言 ${p.comments}</span>
-      <span class="chip">推 ${p.push} / 噓 ${p.boo}</span>
+      <span class="chip">推 ${p.push} / 噓 ${p.boo}</span>`}
       ${p.ai ? '<span class="chip ai">AI</span>' : ""}
     </div>
+    ${tags ? `<div class="tags">${tags}</div>` : ""}
     ${p.summary ? `<div class="summary">${esc(p.summary)}</div>` : ""}
+    ${detail(p)}
     ${links ? `<div class="links">${links}</div>` : ""}
+    ${p.fund || links ? '<div class="expand">點一下看詳細數據</div>' : ""}
   </article>`;
 }
 
@@ -207,9 +302,13 @@ function renderTrack(track) {
     $("#track").innerHTML = `<div class="card empty">還沒有績效紀錄。<br>選股器跑滿兩個交易日後，這裡會開始比較「前一天看多的股票」與 0050 的表現。</div>`;
     return;
   }
-  let a = 1, b = 1;
-  const pts = track.map(t => { a *= 1 + t.avg / 100; b *= 1 + (t.bench ?? 0) / 100; return { d: t.date, a: (a - 1) * 100, b: (b - 1) * 100 }; });
-  const all = pts.flatMap(p => [p.a, p.b]).concat(0);
+  let a = 1, b = 1, c = 1;
+  const pts = track.map(t => {
+    a *= 1 + t.avg / 100; b *= 1 + (t.bench ?? 0) / 100; c *= 1 + (t.flow_avg ?? 0) / 100;
+    return { d: t.date, a: (a - 1) * 100, b: (b - 1) * 100, c: (c - 1) * 100 };
+  });
+  const hasFlow = track.some(t => t.flow_avg != null);
+  const all = pts.flatMap(p => hasFlow ? [p.a, p.b, p.c] : [p.a, p.b]).concat(0);
   const lo = Math.min(...all), hi = Math.max(...all), span = hi - lo || 1;
   const W = 600, H = 180, pad = 8;
   const x = i => pts.length === 1 ? W / 2 : pad + i * (W - 2 * pad) / (pts.length - 1);
@@ -217,26 +316,28 @@ function renderTrack(track) {
   const line = k => pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join("");
   const last = pts[pts.length - 1];
   const wins = track.reduce((s, t) => s + t.win * t.n / 100, 0), n = track.reduce((s, t) => s + t.n, 0);
-  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td><td>${t.n}</td><td>${t.win}%</td>
-      <td class="${cls(t.avg)}">${sign(t.avg)}</td><td class="${cls(t.bench)}">${sign(t.bench)}</td></tr>`).join("");
+  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td><td>${t.win}%</td>
+      <td class="${cls(t.avg)}">${sign(t.avg)}</td><td class="${cls(t.flow_avg)}">${sign(t.flow_avg)}</td><td class="${cls(t.bench)}">${sign(t.bench)}</td></tr>`).join("");
   $("#track").innerHTML = `
     <div class="stats" style="margin-top:0">
-      <div class="stat"><b class="${cls(last.a)}">${sign(last.a)}</b><span>選股累積</span></div>
+      <div class="stat"><b class="${cls(last.a)}">${sign(last.a)}</b><span>社群看多累積</span></div>
+      <div class="stat"><b class="${cls(last.c)}">${hasFlow ? sign(last.c) : "—"}</b><span>法人布局累積</span></div>
       <div class="stat"><b class="${cls(last.b)}">${sign(last.b)}</b><span>0050 累積</span></div>
-      <div class="stat"><b>${n ? Math.round(wins / n * 100) : 0}%</b><span>勝率 · ${n} 檔次</span></div>
     </div>
     <div class="card">
-      <h3>累積報酬（每日等權買進前一天看多股）</h3>
+      <h3>累積報酬（每日等權買進前一天的榜單）</h3>
       <svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
         <line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="rgba(255,255,255,0.15)" stroke-dasharray="3 4"/>
         <path d="${line("b")}" fill="none" stroke="#6f6d69" stroke-width="2" vector-effect="non-scaling-stroke"/>
+        ${hasFlow ? `<path d="${line("c")}" fill="none" stroke="#c9a86a" stroke-width="2.5" vector-effect="non-scaling-stroke"/>` : ""}
         <path d="${line("a")}" fill="none" stroke="#f2f1ee" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
       </svg>
-      <div class="legend"><span><i style="background:#f2f1ee"></i>選股器</span><span><i style="background:#6f6d69"></i>0050</span></div>
+      <div class="legend"><span><i style="background:#f2f1ee"></i>社群看多</span><span><i style="background:#c9a86a"></i>法人布局</span><span><i style="background:#6f6d69"></i>0050</span></div>
+      <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft)">社群看多勝率 ${n ? Math.round(wins / n * 100) : 0}%（${n} 檔次）</p>
     </div>
     <div class="card">
       <h3>每日紀錄</h3>
-      <table><thead><tr><th>日期</th><th>檔數</th><th>勝率</th><th>平均</th><th>0050</th></tr></thead><tbody>${rows}</tbody></table>
+      <table><thead><tr><th>日期</th><th>勝率</th><th>社群</th><th>法人</th><th>0050</th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
 }
 
@@ -256,8 +357,23 @@ function renderTrack(track) {
     <div class="stat"><b>${(d.sources.PTT || 0) + (d.sources.Dcard || 0)}</b><span>篇文章</span></div>
     <div class="stat"><b>${d.comments.toLocaleString()}</b><span>則推文</span></div>
     <div class="stat"><b>${bulls}<small style="font-size:14px;color:var(--ink-soft)"> / ${d.picks.length}</small></b><span>看多檔數</span></div>`;
-  $("#list").innerHTML = d.picks.length ? d.picks.map(pickCard).join("") : `<div class="card empty">今天討論量不足，沒有選出標的。</div>`;
-  document.querySelectorAll(".pick .top").forEach(t => t.onclick = () => t.parentElement.classList.toggle("open"));
+  const notes = {
+    social: "PTT／Dcard 討論最熱的股票，再用基本面與法人籌碼打分。",
+    flow: "論壇沒在聊、但營收成長、有獲利、法人正在買的股票。",
+  };
+  const show = which => {
+    const rows = which === "flow" ? (d.flow_picks || []) : d.picks;
+    document.querySelectorAll("#seg button").forEach(b => b.classList.toggle("on", b.dataset.l === which));
+    $("#seg-note").textContent = notes[which];
+    $("#list").innerHTML = rows.length ? rows.map(pickCard).join("")
+      : `<div class="card empty">${which === "flow" ? "今天沒有符合條件的股票。" : "今天討論量不足，沒有選出標的。"}</div>`;
+    document.querySelectorAll(".pick").forEach(el => el.onclick = e => { if (!e.target.closest("a")) el.classList.toggle("open"); });
+    try { localStorage.setItem("picker.list", which); } catch {}
+  };
+  document.querySelectorAll("#seg button").forEach(b => b.onclick = () => show(b.dataset.l));
+  let saved = "social";
+  try { saved = localStorage.getItem("picker.list") || "social"; } catch {}
+  show(saved === "flow" && d.flow_picks?.length ? "flow" : "social");
 })();
 </script>
 </body>

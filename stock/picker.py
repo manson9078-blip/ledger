@@ -6,6 +6,7 @@ Runs daily on GitHub Actions and writes stock/data/*.json for stock/index.html.
   python stock/picker.py --days 2     # look back further
 
 Set GEMINI_API_KEY to use Gemini for sentiment; otherwise a keyword lexicon is used.
+Fundamentals and institutional flow come from fundamentals.py (see its docstring).
 """
 import argparse
 import csv
@@ -21,6 +22,8 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
+import fundamentals as fd
 
 TZ = dt.timezone(dt.timedelta(hours=8))
 DATA_DIR = Path(__file__).resolve().parent / "data"
@@ -94,7 +97,9 @@ ALIASES = {"GG": "2330", "台GG": "2330", "護國神山": "2330", "神山": "233
            "發哥": "2454", "海公公": "2317", "茂哥": "3008", "長榮海": "2603"}
 # stock names that are also everyday words
 NAME_STOPWORDS = {"台灣", "美國", "日本", "中國", "大家", "統一", "國泰", "開發", "信義",
-                  "全新", "新光", "大同", "東元", "光寶", "佳能", "力積"}
+                  "全新", "新光", "大同", "東元", "光寶", "佳能", "力積", "世界", "三星",
+                  "精英", "全家", "美食", "大眾", "中華", "國產", "如興", "正道", "嘉里"}
+YEARISH = range(2000, 2040)  # "2030" is far more often a year than 彰源
 CODE_RE = re.compile(r"(?<![\d.\-/])(\d{4,5}[A-Z]?|00\d{3,4}[A-Z]?)(?![\d.%/\-年月日])")
 
 
@@ -118,14 +123,14 @@ class Matcher:
         self.name_re = re.compile("|".join(re.escape(n) for n in sorted(names, key=len, reverse=True))) if names else None
 
     def find(self, text):
-        found = set()
+        by_name = {self.names[m.group(0)] for m in self.name_re.finditer(text)} if self.name_re else set()
+        found = set(by_name)
         for m in CODE_RE.finditer(text):
             c = m.group(1)
             if c in self.codes or (not self.codes and len(c) == 4):
+                if len(c) == 4 and int(c) in YEARISH and c not in by_name:
+                    continue
                 found.add(c)
-        if self.name_re:
-            for m in self.name_re.finditer(text):
-                found.add(self.names[m.group(0)])
         return found
 
 
@@ -152,8 +157,10 @@ def gemini_sentiment(snippets_by_code, names):
     key = os.environ.get("GEMINI_API_KEY")
     if not key or not snippets_by_code:
         return {}
-    model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    # the primary model is often overloaded (503); the lite model usually still answers
+    models = [os.environ.get("GEMINI_MODEL", "gemini-flash-latest"), "gemini-flash-lite-latest"]
+    base = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
+    failures = 0
     out = {}
     for code, snippets in snippets_by_code.items():
         body = "\n".join(f"- {s[:160]}" for s in snippets[:50])
@@ -161,15 +168,30 @@ def gemini_sentiment(snippets_by_code, names):
                   "請判斷散戶整體情緒，回傳 JSON："
                   '{"score": -1 到 1 的數字（-1 極度看空、1 極度看多）, "summary": "20 字內繁中摘要，說明大家在討論什麼"}'
                   f"\n\n{body}")
-        try:
-            r = requests.post(url, params={"key": key}, timeout=60, json={
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"responseMimeType": "application/json", "temperature": 0.2}})
-            r.raise_for_status()
-            j = json.loads(r.json()["candidates"][0]["content"]["parts"][0]["text"])
-            out[code] = (max(-1.0, min(1.0, float(j["score"]))), str(j.get("summary", ""))[:60])
-        except Exception as e:  # keep lexicon score for this ticker
-            log(f"  gemini {code}: {e}")
+        # key goes in a header so it never shows up in error messages / CI logs
+        for attempt in range(4):
+            url = base.format(models[attempt % 2])
+            try:
+                r = requests.post(url, headers={"x-goog-api-key": key}, timeout=60, json={
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {"responseMimeType": "application/json", "temperature": 0.2}})
+                if r.status_code in (429, 500, 503):
+                    time.sleep(5 * (attempt + 1))
+                    continue
+                if r.status_code != 200:
+                    log(f"  gemini {code}: HTTP {r.status_code} {r.text[:120]!r}")
+                    break
+                j = json.loads(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+                out[code] = (max(-1.0, min(1.0, float(j["score"]))), str(j.get("summary", ""))[:60])
+                break
+            except (requests.RequestException, KeyError, IndexError, ValueError, TypeError) as e:
+                log(f"  gemini {code}: {type(e).__name__}")
+                break
+        if code not in out:
+            failures += 1
+            if failures >= 3 and not out:
+                log("  gemini unavailable, falling back to lexicon")
+                break
         time.sleep(4)  # free tier ~15 req/min
     log(f"gemini: {len(out)} tickers")
     return out
@@ -321,7 +343,50 @@ def aggregate(posts, matcher):
     return agg
 
 
-def rank(agg, quotes, gemini=None, top=20):
+def enrich(r, fund, today):
+    """Attach fundamentals + flow to a pick row and return (fund_score, flow_score)."""
+    f = dict(fund.get(r["code"], {}))
+    if r["code"][0] != "0":  # ETFs have no financials worth fetching
+        f.update(fd.fetch_history(r["code"], today))
+        time.sleep(0.5)
+    fs, ws, tags, warns = fd.score(f, (r.get("_q") or {}).get("volume"))
+    keep = ("pe", "dy", "pb", "rev_ym", "rev_yoy", "rev_mom", "eps_period", "eps_ytd", "eps_q", "eps_q_yoy", "eps_turnaround",
+            "gross_margin", "op_margin", "foreign", "trust", "dealer", "inst", "foreign_5d", "trust_5d",
+            "foreign_streak", "trust_streak", "margin", "margin_chg", "short", "short_chg")
+    r["fund"] = {k: f[k] for k in keep if k in f}
+    r["fund_score"], r["flow_score"], r["tags"], r["warnings"] = fs, ws, [t[1] for t in tags], warns
+    return fs, ws
+
+
+def flow_list(fund, quotes, today, exclude=(), top=10):
+    """Stocks the forums aren't talking about: growing revenue, profitable, sane P/E, institutions buying."""
+    cands = []
+    for code, f in fund.items():
+        q = quotes.get(code)
+        if not q or code in exclude or len(code) != 4 or code[0] == "0" or not q.get("volume"):
+            continue
+        lots = q["volume"] / 1000
+        if (lots < 1000 or (f.get("rev_yoy") or -1) < 10 or (f.get("eps_ytd") or 0) <= 0
+                or not f.get("pe") or f["pe"] > 40 or (f.get("inst") or 0) <= 0):
+            continue
+        cands.append((f["inst"] / lots, code))
+    rows = []
+    for _, code in sorted(cands, reverse=True)[: top * 2]:
+        q = quotes[code]
+        r = {"code": code, "name": q["name"], "market": q["market"], "close": q["close"], "pct": q["pct"], "_q": q}
+        fs, ws = enrich(r, fund, today)
+        r["score"] = round(0.45 * (fs or 50) + 0.55 * (ws or 50), 1)
+        r["signal"] = "法人買" if (ws or 0) >= 60 else "觀察"
+        r.pop("_q")
+        rows.append(r)
+    rows.sort(key=lambda r: r["score"], reverse=True)
+    for i, r in enumerate(rows[:top], 1):
+        r["rank"] = i
+    log(f"flow list: {len(cands)} candidates -> {min(top, len(rows))}")
+    return rows[:top]
+
+
+def rank(agg, quotes, fund=None, gemini=None, top=20, today=None):
     rows = []
     for code, a in agg.items():
         buzz = a["posts"] * 5 + a["comments"]
@@ -342,6 +407,7 @@ def rank(agg, quotes, gemini=None, top=20):
         r["market"] = q.get("market", "")
         r["close"] = q.get("close")
         r["pct"] = q.get("pct")
+        r["_q"] = q
         r["buzz_score"] = round(math.log1p(r["buzz"]) / max_log * 100, 1)
     rows.sort(key=lambda r: r["buzz"], reverse=True)
     rows = rows[: max(top * 2, 30)]
@@ -356,10 +422,18 @@ def rank(agg, quotes, gemini=None, top=20):
                 r["ai"] = True
 
     for r in rows:
+        fs, ws = enrich(r, fund, today) if fund is not None else (None, None)
         mom = max(-10, min(10, r["pct"] or 0)) / 10  # -1..1
-        r["score"] = round(0.5 * r["buzz_score"] + 35 * (r["sentiment"] + 1) / 2 + 15 * (mom + 1) / 2, 1)
+        # buzz 20 / sentiment 20 / fundamentals 30 / institutional flow 25 / momentum 5
+        r["score"] = round(0.20 * r["buzz_score"] + 20 * (r["sentiment"] + 1) / 2
+                           + 0.30 * (fs if fs is not None else 50) + 0.25 * (ws if ws is not None else 50)
+                           + 5 * (mom + 1) / 2, 1)
         r["signal"] = "看多" if r["sentiment"] >= 0.2 else ("看空" if r["sentiment"] <= -0.2 else "中性")
+        if (fund is not None and r["signal"] == "看多" and (r["fund"].get("inst") or 0) < 0
+                and (r["fund"].get("foreign_5d") or 0) < 0):
+            r["warnings"].insert(0, "散戶看多、法人賣超")
         r.pop("_snippets")
+        r.pop("_q")
     rows.sort(key=lambda r: r["score"], reverse=True)
     for i, r in enumerate(rows[:top], 1):
         r["rank"] = i
@@ -374,15 +448,19 @@ def update_track(prev, quotes):
     track = json.loads(path.read_text("utf-8")) if path.exists() else []
     if not prev or not prev.get("picks") or any(t["date"] == prev["date"] for t in track):
         return track
-    res = []
-    for p in prev["picks"]:
-        if p.get("signal") != "看多" or not p.get("close"):
-            continue
-        q = quotes.get(p["code"])
-        if not q or not q["close"] or q.get("date") == prev.get("quote_date"):
-            continue
-        res.append({"code": p["code"], "name": p["name"],
-                    "ret": round((q["close"] / p["close"] - 1) * 100, 2)})
+
+    def returns(picks, want=None):
+        res = []
+        for p in picks or []:
+            if (want and p.get("signal") != want) or not p.get("close"):
+                continue
+            q = quotes.get(p["code"])
+            if not q or not q["close"] or q.get("date") == prev.get("quote_date"):
+                continue
+            res.append({"code": p["code"], "name": p["name"], "ret": round((q["close"] / p["close"] - 1) * 100, 2)})
+        return res
+
+    res, flow = returns(prev["picks"], "看多"), returns(prev.get("flow_picks"))
     if not res:
         return track
     bench = quotes.get("0050", {})
@@ -391,7 +469,9 @@ def update_track(prev, quotes):
                   "avg": round(sum(x["ret"] for x in res) / len(res), 2),
                   "win": round(sum(x["ret"] > 0 for x in res) / len(res) * 100),
                   "bench": round((bench["close"] / b0 - 1) * 100, 2) if b0 and bench.get("close") else None,
-                  "picks": res})
+                  "picks": res,
+                  **({"flow_n": len(flow), "flow_avg": round(sum(x["ret"] for x in flow) / len(flow), 2),
+                      "flow_win": round(sum(x["ret"] > 0 for x in flow) / len(flow) * 100)} if flow else {})})
     track = track[-120:]
     path.write_text(json.dumps(track, ensure_ascii=False, indent=1), "utf-8")
     return track
@@ -404,6 +484,7 @@ def main():
     ap.add_argument("--days", type=int, default=1, help="look back N days (default: yesterday + today)")
     ap.add_argument("--top", type=int, default=20)
     ap.add_argument("--no-dcard", action="store_true")
+    ap.add_argument("--no-fundamentals", action="store_true")
     args = ap.parse_args()
 
     now = dt.datetime.now(TZ)
@@ -418,7 +499,9 @@ def main():
         log("no posts fetched; leaving previous data untouched")
         sys.exit(1)
 
-    picks = rank(aggregate(posts, matcher), quotes, gemini_sentiment, args.top)
+    fund, fund_meta = (None, {}) if args.no_fundamentals else fd.fetch_bulk()
+    picks = rank(aggregate(posts, matcher), quotes, fund, gemini_sentiment, args.top, now.date())
+    flow_picks = flow_list(fund, quotes, now.date(), {p["code"] for p in picks}) if fund else []
     quote_date = next((q["date"] for q in quotes.values() if q.get("date")), None)
     result = {
         "date": now.date().isoformat(),
@@ -429,7 +512,9 @@ def main():
         "comments": sum(len(p.get("comments", [])) for p in posts),
         "ai": any(p.get("ai") for p in picks),
         "benchmark": {"code": "0050", **{k: quotes.get("0050", {}).get(k) for k in ("close", "pct")}},
+        "data_dates": fund_meta,
         "picks": picks,
+        "flow_picks": flow_picks,
     }
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -444,13 +529,23 @@ def main():
     (DATA_DIR / "history" / f"{result['date']}.json").write_text(text, "utf-8")
     with open(DATA_DIR / "latest.csv", "w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f)
-        w.writerow(["排名", "代號", "名稱", "市場", "收盤", "漲跌%", "聲量", "文章", "留言", "推", "噓", "情緒", "訊號", "總分"])
-        for p in picks:
-            w.writerow([p["rank"], p["code"], p["name"], p["market"], p["close"], p["pct"], p["buzz"],
-                        p["posts"], p["comments"], p["push"], p["boo"], p["sentiment"], p["signal"], p["score"]])
+        cols = ("pe", "dy", "rev_yoy", "eps_ytd", "eps_q_yoy", "gross_margin", "foreign", "trust", "inst",
+                "trust_streak", "margin_chg")
+        w.writerow(["榜單", "排名", "代號", "名稱", "市場", "收盤", "漲跌%", "聲量", "留言", "情緒", "訊號",
+                    "本益比", "殖利率%", "營收YoY%", "累計EPS", "單季EPS YoY%", "毛利率%", "外資(張)", "投信(張)",
+                    "三大法人(張)", "投信連續天數", "融資增減(張)", "基本面分", "籌碼分", "警示", "總分"])
+        for board, rows in (("社群熱門", picks), ("法人布局", flow_picks)):
+            for p in rows:
+                f = p.get("fund", {})
+                w.writerow([board, p["rank"], p["code"], p["name"], p["market"], p["close"], p["pct"], p.get("buzz"),
+                            p.get("comments"), p.get("sentiment"), p["signal"], *(f.get(c) for c in cols),
+                            p.get("fund_score"), p.get("flow_score"), "、".join(p.get("warnings", [])), p["score"]])
     log(f"done: {len(picks)} picks from {len(posts)} posts")
     for p in picks[:10]:
-        log(f"  #{p['rank']:>2} {p['code']} {p['name']:<6} score={p['score']} buzz={p['buzz']} sent={p['sentiment']:+.2f}")
+        log(f"  #{p['rank']:>2} {p['code']} {p['name']:<6} score={p['score']} buzz={p['buzz']} sent={p['sentiment']:+.2f}"
+            f" fund={p.get('fund_score')} flow={p.get('flow_score')} {' '.join(p.get('tags', []))} {p.get('warnings', '')}")
+    for p in flow_picks:
+        log(f"  [法人] {p['code']} {p['name']:<6} score={p['score']} {' '.join(p['tags'])}")
 
 
 if __name__ == "__main__":
