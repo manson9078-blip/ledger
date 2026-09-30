@@ -304,7 +304,7 @@ function renderTrack(track) {
   }
   let a = 1, b = 1, c = 1;
   const pts = track.map(t => {
-    a *= 1 + t.avg / 100; b *= 1 + (t.bench ?? 0) / 100; c *= 1 + (t.flow_avg ?? 0) / 100;
+    a *= 1 + (t.avg ?? 0) / 100; b *= 1 + (t.bench ?? 0) / 100; c *= 1 + (t.flow_avg ?? 0) / 100;
     return { d: t.date, a: (a - 1) * 100, b: (b - 1) * 100, c: (c - 1) * 100 };
   });
   const hasFlow = track.some(t => t.flow_avg != null);
@@ -315,8 +315,8 @@ function renderTrack(track) {
   const y = v => pad + (hi - v) / span * (H - 2 * pad);
   const line = k => pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join("");
   const last = pts[pts.length - 1];
-  const wins = track.reduce((s, t) => s + t.win * t.n / 100, 0), n = track.reduce((s, t) => s + t.n, 0);
-  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td><td>${t.win}%</td>
+  const wins = track.reduce((s, t) => s + (t.win ?? 0) * t.n / 100, 0), n = track.reduce((s, t) => s + t.n, 0);
+  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td><td>${t.win == null ? "—" : t.win + "%"}</td>
       <td class="${cls(t.avg)}">${sign(t.avg)}</td><td class="${cls(t.flow_avg)}">${sign(t.flow_avg)}</td><td class="${cls(t.bench)}">${sign(t.bench)}</td></tr>`).join("");
   $("#track").innerHTML = `
     <div class="stats" style="margin-top:0">
@@ -373,7 +373,8 @@ function renderTrack(track) {
   document.querySelectorAll("#seg button").forEach(b => b.onclick = () => show(b.dataset.l));
   let saved = "social";
   try { saved = localStorage.getItem("picker.list") || "social"; } catch {}
-  show(saved === "flow" && d.flow_picks?.length ? "flow" : "social");
+  if (d.social_ok === false) notes.social = "今天沒抓到 PTT 資料（自動排程的主機被 PTT 擋下），先看右邊的法人布局。";
+  show((saved === "flow" || !d.picks.length) && d.flow_picks?.length ? "flow" : "social");
 })();
 </script>
 </body>
