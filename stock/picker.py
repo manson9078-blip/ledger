@@ -446,7 +446,7 @@ def update_track(prev, quotes):
     """Score yesterday's picks against today's close."""
     path = DATA_DIR / "track.json"
     track = json.loads(path.read_text("utf-8")) if path.exists() else []
-    if not prev or not prev.get("picks") or any(t["date"] == prev["date"] for t in track):
+    if not prev or any(t["date"] == prev["date"] for t in track):
         return track
 
     def returns(picks, want=None):
@@ -460,14 +460,16 @@ def update_track(prev, quotes):
             res.append({"code": p["code"], "name": p["name"], "ret": round((q["close"] / p["close"] - 1) * 100, 2)})
         return res
 
-    res, flow = returns(prev["picks"], "看多"), returns(prev.get("flow_picks"))
-    if not res:
+    # a carried-over social board was already scored on the day it was made
+    res = [] if prev.get("social_stale") else returns(prev["picks"], "看多")
+    flow = returns(prev.get("flow_picks"))
+    if not res and not flow:
         return track
     bench = quotes.get("0050", {})
     b0 = (prev.get("benchmark") or {}).get("close")
     track.append({"date": prev["date"], "n": len(res),
-                  "avg": round(sum(x["ret"] for x in res) / len(res), 2),
-                  "win": round(sum(x["ret"] > 0 for x in res) / len(res) * 100),
+                  "avg": round(sum(x["ret"] for x in res) / len(res), 2) if res else None,
+                  "win": round(sum(x["ret"] > 0 for x in res) / len(res) * 100) if res else None,
                   "bench": round((bench["close"] / b0 - 1) * 100, 2) if b0 and bench.get("close") else None,
                   "picks": res,
                   **({"flow_n": len(flow), "flow_avg": round(sum(x["ret"] for x in flow) / len(flow), 2),
@@ -492,34 +494,53 @@ def main():
     quotes = fetch_quotes()
     matcher = Matcher(quotes)
 
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    latest = DATA_DIR / "latest.json"
+    prev = json.loads(latest.read_text("utf-8")) if latest.exists() else None
+    today = now.date().isoformat()
+
     posts = ptt_posts(since)
     if not args.no_dcard:
         posts += dcard_posts(since)
-    if not posts:
-        log("no posts fetched; leaving previous data untouched")
-        sys.exit(1)
+    stale = not posts
+    if stale:
+        # PTT/Dcard block data-center IPs (GitHub Actions). Refresh prices, fundamentals and
+        # the 法人布局 board anyway, and carry the last social board over, marked stale.
+        if not prev or not prev.get("picks"):
+            log("no posts fetched and no previous social board; nothing to do")
+            sys.exit(1)
+        if prev.get("date") == today and not prev.get("social_stale"):
+            log("no posts fetched, but today's full run already exists; leaving it untouched")
+            return
+        log("no posts fetched; carrying over the previous social board")
 
     fund, fund_meta = (None, {}) if args.no_fundamentals else fd.fetch_bulk()
-    picks = rank(aggregate(posts, matcher), quotes, fund, gemini_sentiment, args.top, now.date())
+    if stale:
+        picks = json.loads(json.dumps(prev["picks"]))  # copy: prev is still needed for the track record
+        for p in picks:  # keep scores from the day they were made, show current prices
+            q = quotes.get(p["code"])
+            if q:
+                p["close"], p["pct"] = q["close"], q["pct"]
+    else:
+        picks = rank(aggregate(posts, matcher), quotes, fund, gemini_sentiment, args.top, now.date())
     flow_picks = flow_list(fund, quotes, now.date(), {p["code"] for p in picks}) if fund else []
     quote_date = next((q["date"] for q in quotes.values() if q.get("date")), None)
     result = {
-        "date": now.date().isoformat(),
+        "date": today,
         "generated_at": now.isoformat(timespec="minutes"),
         "since": since.isoformat(),
         "quote_date": quote_date,
-        "sources": {s: sum(p["src"] == s for p in posts) for s in ("PTT", "Dcard")},
-        "comments": sum(len(p.get("comments", [])) for p in posts),
-        "ai": any(p.get("ai") for p in picks),
+        "social_date": prev.get("social_date", prev["date"]) if stale else today,
+        "social_stale": stale,
+        "sources": prev.get("sources", {}) if stale else {s: sum(p["src"] == s for p in posts) for s in ("PTT", "Dcard")},
+        "comments": prev.get("comments", 0) if stale else sum(len(p.get("comments", [])) for p in posts),
+        "ai": prev.get("ai", False) if stale else any(p.get("ai") for p in picks),
         "benchmark": {"code": "0050", **{k: quotes.get("0050", {}).get(k) for k in ("close", "pct")}},
         "data_dates": fund_meta,
         "picks": picks,
         "flow_picks": flow_picks,
     }
 
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    latest = DATA_DIR / "latest.json"
-    prev = json.loads(latest.read_text("utf-8")) if latest.exists() else None
     if prev and prev.get("date") != result["date"]:
         update_track(prev, quotes)
 
@@ -540,7 +561,7 @@ def main():
                 w.writerow([board, p["rank"], p["code"], p["name"], p["market"], p["close"], p["pct"], p.get("buzz"),
                             p.get("comments"), p.get("sentiment"), p["signal"], *(f.get(c) for c in cols),
                             p.get("fund_score"), p.get("flow_score"), "、".join(p.get("warnings", [])), p["score"]])
-    log(f"done: {len(picks)} picks from {len(posts)} posts")
+    log(f"done: {len(picks)} picks from {len(posts)} posts" + (" (social board carried over)" if stale else ""))
     for p in picks[:10]:
         log(f"  #{p['rank']:>2} {p['code']} {p['name']:<6} score={p['score']} buzz={p['buzz']} sent={p['sentiment']:+.2f}"
             f" fund={p.get('fund_score')} flow={p.get('flow_score')} {' '.join(p.get('tags', []))} {p.get('warnings', '')}")

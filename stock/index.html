@@ -45,6 +45,7 @@
   header .sub { color: var(--ink-soft); font-size: 13px; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px 12px; }
   .chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px;
           border: 1px solid var(--card-border); font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+  .chip.stale { color: #e0b25c; border-color: rgba(224,178,92,0.45); }
   .chip.ai { color: var(--ink); border-color: rgba(255,255,255,0.35); }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 20px 0 8px; }
   .stat { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; }
@@ -304,7 +305,7 @@ function renderTrack(track) {
   }
   let a = 1, b = 1, c = 1;
   const pts = track.map(t => {
-    a *= 1 + t.avg / 100; b *= 1 + (t.bench ?? 0) / 100; c *= 1 + (t.flow_avg ?? 0) / 100;
+    a *= 1 + (t.avg ?? 0) / 100; b *= 1 + (t.bench ?? 0) / 100; c *= 1 + (t.flow_avg ?? 0) / 100;
     return { d: t.date, a: (a - 1) * 100, b: (b - 1) * 100, c: (c - 1) * 100 };
   });
   const hasFlow = track.some(t => t.flow_avg != null);
@@ -315,8 +316,8 @@ function renderTrack(track) {
   const y = v => pad + (hi - v) / span * (H - 2 * pad);
   const line = k => pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join("");
   const last = pts[pts.length - 1];
-  const wins = track.reduce((s, t) => s + t.win * t.n / 100, 0), n = track.reduce((s, t) => s + t.n, 0);
-  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td><td>${t.win}%</td>
+  const wins = track.reduce((s, t) => s + (t.win ?? 0) * t.n / 100, 0), n = track.reduce((s, t) => s + t.n, 0);
+  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td><td>${t.win == null ? "—" : t.win + "%"}</td>
       <td class="${cls(t.avg)}">${sign(t.avg)}</td><td class="${cls(t.flow_avg)}">${sign(t.flow_avg)}</td><td class="${cls(t.bench)}">${sign(t.bench)}</td></tr>`).join("");
   $("#track").innerHTML = `
     <div class="stats" style="margin-top:0">
@@ -351,6 +352,7 @@ function renderTrack(track) {
   }
   $("#sub").innerHTML = `<span>${esc(d.date)} 更新 · 收盤價 ${esc(fmtDate(d.quote_date))}</span>` +
     `<span>PTT ${d.sources.PTT || 0} 篇 · Dcard ${d.sources.Dcard || 0} 篇</span>` +
+    (d.social_stale ? `<span class="chip stale">社群榜沿用 ${esc(d.social_date.slice(5).replace("-", "/"))}</span>` : "") +
     (d.ai ? '<span class="chip ai">Gemini 情緒分析</span>' : '<span class="chip">詞典情緒分析</span>');
   const bulls = d.picks.filter(p => p.signal === "看多").length;
   $("#stats").innerHTML = `
@@ -358,7 +360,9 @@ function renderTrack(track) {
     <div class="stat"><b>${d.comments.toLocaleString()}</b><span>則推文</span></div>
     <div class="stat"><b>${bulls}<small style="font-size:14px;color:var(--ink-soft)"> / ${d.picks.length}</small></b><span>看多檔數</span></div>`;
   const notes = {
-    social: "PTT／Dcard 討論最熱的股票，再用基本面與法人籌碼打分。",
+    social: d.social_stale
+      ? `今天沒抓到 PTT／Dcard（雲端主機被擋，等電腦上的排程補跑），先沿用 ${d.social_date} 的榜單，股價已更新。`
+      : "PTT／Dcard 討論最熱的股票，再用基本面與法人籌碼打分。",
     flow: "論壇沒在聊、但營收成長、有獲利、法人正在買的股票。",
   };
   const show = which => {

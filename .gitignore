@@ -1,2 +1,3 @@
 .netlify/
 __pycache__/
+stock/windows/run.log
