@@ -24,6 +24,7 @@ import requests
 from bs4 import BeautifulSoup
 
 import fundamentals as fd
+import profiles as pf
 
 TZ = dt.timezone(dt.timedelta(hours=8))
 DATA_DIR = Path(__file__).resolve().parent / "data"
@@ -352,7 +353,8 @@ def enrich(r, fund, today):
     fs, ws, tags, warns = fd.score(f, (r.get("_q") or {}).get("volume"))
     keep = ("pe", "dy", "pb", "rev_ym", "rev_yoy", "rev_mom", "eps_period", "eps_ytd", "eps_q", "eps_q_yoy", "eps_turnaround",
             "gross_margin", "op_margin", "foreign", "trust", "dealer", "inst", "foreign_5d", "trust_5d",
-            "foreign_streak", "trust_streak", "margin", "margin_chg", "short", "short_chg")
+            "foreign_streak", "trust_streak", "margin", "margin_chg", "short", "short_chg",
+            "bias20", "ret_5d", "ret_20d")
     r["fund"] = {k: f[k] for k in keep if k in f}
     r["fund_score"], r["flow_score"], r["tags"], r["warnings"] = fs, ws, [t[1] for t in tags], warns
     return fs, ws
@@ -377,6 +379,7 @@ def flow_list(fund, quotes, today, exclude=(), top=10):
         fs, ws = enrich(r, fund, today)
         r["score"] = round(0.45 * (fs or 50) + 0.55 * (ws or 50), 1)
         r["signal"] = "法人買" if (ws or 0) >= 60 else "觀察"
+        r["buy"], r["buy_label"], r["buy_why"] = fd.buy_rating(fs, ws, r["fund"], r["warnings"], pct=r["pct"])
         r.pop("_q")
         rows.append(r)
     rows.sort(key=lambda r: r["score"], reverse=True)
@@ -432,6 +435,8 @@ def rank(agg, quotes, fund=None, gemini=None, top=20, today=None):
         if (fund is not None and r["signal"] == "看多" and (r["fund"].get("inst") or 0) < 0
                 and (r["fund"].get("foreign_5d") or 0) < 0):
             r["warnings"].insert(0, "散戶看多、法人賣超")
+        r["buy"], r["buy_label"], r["buy_why"] = fd.buy_rating(
+            fs, ws, r.get("fund", {}), r.get("warnings", []), r["sentiment"], r["buzz_score"], r["pct"])
         r.pop("_snippets")
         r.pop("_q")
     rows.sort(key=lambda r: r["score"], reverse=True)
@@ -446,13 +451,15 @@ def update_track(prev, quotes):
     """Score yesterday's picks against today's close."""
     path = DATA_DIR / "track.json"
     track = json.loads(path.read_text("utf-8")) if path.exists() else []
-    if not prev or not prev.get("picks") or any(t["date"] == prev["date"] for t in track):
+    if not prev or any(t["date"] == prev["date"] for t in track):
         return track
 
-    def returns(picks, want=None):
+    def returns(picks, want=None, min_buy=None):
         res = []
         for p in picks or []:
             if (want and p.get("signal") != want) or not p.get("close"):
+                continue
+            if min_buy is not None and (p.get("buy") or 0) < min_buy:
                 continue
             q = quotes.get(p["code"])
             if not q or not q["close"] or q.get("date") == prev.get("quote_date"):
@@ -460,18 +467,25 @@ def update_track(prev, quotes):
             res.append({"code": p["code"], "name": p["name"], "ret": round((q["close"] / p["close"] - 1) * 100, 2)})
         return res
 
-    res, flow = returns(prev["picks"], "看多"), returns(prev.get("flow_picks"))
-    if not res:
+    # a carried-over social board was already scored on the day it was made
+    res = [] if prev.get("social_stale") else returns(prev["picks"], "看多")
+    flow = returns(prev.get("flow_picks"))
+    # high buy-rating names from both boards, to check whether the rating means anything
+    social = [] if prev.get("social_stale") else prev["picks"]
+    buy = list({x["code"]: x for x in returns(social + (prev.get("flow_picks") or []), min_buy=75)}.values())
+    if not res and not flow:
         return track
     bench = quotes.get("0050", {})
     b0 = (prev.get("benchmark") or {}).get("close")
     track.append({"date": prev["date"], "n": len(res),
-                  "avg": round(sum(x["ret"] for x in res) / len(res), 2),
-                  "win": round(sum(x["ret"] > 0 for x in res) / len(res) * 100),
+                  "avg": round(sum(x["ret"] for x in res) / len(res), 2) if res else None,
+                  "win": round(sum(x["ret"] > 0 for x in res) / len(res) * 100) if res else None,
                   "bench": round((bench["close"] / b0 - 1) * 100, 2) if b0 and bench.get("close") else None,
                   "picks": res,
                   **({"flow_n": len(flow), "flow_avg": round(sum(x["ret"] for x in flow) / len(flow), 2),
-                      "flow_win": round(sum(x["ret"] > 0 for x in flow) / len(flow) * 100)} if flow else {})})
+                      "flow_win": round(sum(x["ret"] > 0 for x in flow) / len(flow) * 100)} if flow else {}),
+                  **({"buy_n": len(buy), "buy_avg": round(sum(x["ret"] for x in buy) / len(buy), 2),
+                      "buy_win": round(sum(x["ret"] > 0 for x in buy) / len(buy) * 100)} if buy else {})})
     track = track[-120:]
     path.write_text(json.dumps(track, ensure_ascii=False, indent=1), "utf-8")
     return track
@@ -485,6 +499,7 @@ def main():
     ap.add_argument("--top", type=int, default=20)
     ap.add_argument("--no-dcard", action="store_true")
     ap.add_argument("--no-fundamentals", action="store_true")
+    ap.add_argument("--no-profiles", action="store_true", help="skip 業務/題材 lookups")
     args = ap.parse_args()
 
     now = dt.datetime.now(TZ)
@@ -492,34 +507,57 @@ def main():
     quotes = fetch_quotes()
     matcher = Matcher(quotes)
 
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    latest = DATA_DIR / "latest.json"
+    prev = json.loads(latest.read_text("utf-8")) if latest.exists() else None
+    today = now.date().isoformat()
+
     posts = ptt_posts(since)
     if not args.no_dcard:
         posts += dcard_posts(since)
-    if not posts:
-        log("no posts fetched; leaving previous data untouched")
-        sys.exit(1)
+    stale = not posts
+    if stale:
+        # PTT/Dcard block data-center IPs (GitHub Actions). Refresh prices, fundamentals and
+        # the 法人布局 board anyway, and carry the last social board over, marked stale.
+        if not prev or not prev.get("picks"):
+            log("no posts fetched and no previous social board; nothing to do")
+            sys.exit(1)
+        if prev.get("date") == today and not prev.get("social_stale"):
+            log("no posts fetched, but today's full run already exists; leaving it untouched")
+            return
+        log("no posts fetched; carrying over the previous social board")
 
     fund, fund_meta = (None, {}) if args.no_fundamentals else fd.fetch_bulk()
-    picks = rank(aggregate(posts, matcher), quotes, fund, gemini_sentiment, args.top, now.date())
+    if stale:
+        picks = json.loads(json.dumps(prev["picks"]))  # copy: prev is still needed for the track record
+        for p in picks:  # keep scores from the day they were made, show current prices
+            q = quotes.get(p["code"])
+            if q:
+                p["close"], p["pct"] = q["close"], q["pct"]
+    else:
+        picks = rank(aggregate(posts, matcher), quotes, fund, gemini_sentiment, args.top, now.date())
     flow_picks = flow_list(fund, quotes, now.date(), {p["code"] for p in picks}) if fund else []
+    if not args.no_profiles:
+        rows = picks + flow_picks
+        ctx = lambda r: [l["title"] for l in r.get("links", [])] + ([r["summary"]] if r.get("summary") else [])
+        pf.attach(rows, pf.ensure([(r["code"], r["name"], ctx(r)) for r in rows], now.date()))
     quote_date = next((q["date"] for q in quotes.values() if q.get("date")), None)
     result = {
-        "date": now.date().isoformat(),
+        "date": today,
         "generated_at": now.isoformat(timespec="minutes"),
         "since": since.isoformat(),
         "quote_date": quote_date,
-        "sources": {s: sum(p["src"] == s for p in posts) for s in ("PTT", "Dcard")},
-        "comments": sum(len(p.get("comments", [])) for p in posts),
-        "ai": any(p.get("ai") for p in picks),
+        "social_date": prev.get("social_date", prev["date"]) if stale else today,
+        "social_stale": stale,
+        "sources": prev.get("sources", {}) if stale else {s: sum(p["src"] == s for p in posts) for s in ("PTT", "Dcard")},
+        "comments": prev.get("comments", 0) if stale else sum(len(p.get("comments", [])) for p in posts),
+        "ai": prev.get("ai", False) if stale else any(p.get("ai") for p in picks),
         "benchmark": {"code": "0050", **{k: quotes.get("0050", {}).get(k) for k in ("close", "pct")}},
         "data_dates": fund_meta,
         "picks": picks,
         "flow_picks": flow_picks,
     }
 
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    latest = DATA_DIR / "latest.json"
-    prev = json.loads(latest.read_text("utf-8")) if latest.exists() else None
     if prev and prev.get("date") != result["date"]:
         update_track(prev, quotes)
 
@@ -531,16 +569,19 @@ def main():
         w = csv.writer(f)
         cols = ("pe", "dy", "rev_yoy", "eps_ytd", "eps_q_yoy", "gross_margin", "foreign", "trust", "inst",
                 "trust_streak", "margin_chg")
-        w.writerow(["榜單", "排名", "代號", "名稱", "市場", "收盤", "漲跌%", "聲量", "留言", "情緒", "訊號",
+        w.writerow(["榜單", "排名", "代號", "名稱", "市場", "產業", "題材", "業務", "收盤", "漲跌%", "聲量", "留言", "情緒", "訊號",
                     "本益比", "殖利率%", "營收YoY%", "累計EPS", "單季EPS YoY%", "毛利率%", "外資(張)", "投信(張)",
-                    "三大法人(張)", "投信連續天數", "融資增減(張)", "基本面分", "籌碼分", "警示", "總分"])
+                    "三大法人(張)", "投信連續天數", "融資增減(張)", "基本面分", "籌碼分", "警示", "總分", "買入評分", "評等", "理由"])
         for board, rows in (("社群熱門", picks), ("法人布局", flow_picks)):
             for p in rows:
                 f = p.get("fund", {})
-                w.writerow([board, p["rank"], p["code"], p["name"], p["market"], p["close"], p["pct"], p.get("buzz"),
+                pr = p.get("profile", {})
+                w.writerow([board, p["rank"], p["code"], p["name"], p["market"], pr.get("industry"),
+                            "、".join(pr.get("themes", [])), pr.get("business"), p["close"], p["pct"], p.get("buzz"),
                             p.get("comments"), p.get("sentiment"), p["signal"], *(f.get(c) for c in cols),
-                            p.get("fund_score"), p.get("flow_score"), "、".join(p.get("warnings", [])), p["score"]])
-    log(f"done: {len(picks)} picks from {len(posts)} posts")
+                            p.get("fund_score"), p.get("flow_score"), "、".join(p.get("warnings", [])), p["score"],
+                            p.get("buy"), p.get("buy_label"), "；".join(("+" if x["pos"] else "-") + x["text"] for x in p.get("buy_why", []))])
+    log(f"done: {len(picks)} picks from {len(posts)} posts" + (" (social board carried over)" if stale else ""))
     for p in picks[:10]:
         log(f"  #{p['rank']:>2} {p['code']} {p['name']:<6} score={p['score']} buzz={p['buzz']} sent={p['sentiment']:+.2f}"
             f" fund={p.get('fund_score')} flow={p.get('flow_score')} {' '.join(p.get('tags', []))} {p.get('warnings', '')}")

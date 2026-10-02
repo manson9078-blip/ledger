@@ -182,6 +182,13 @@ def fetch_history(code, today):
                 streak += 1 if v > 0 else -1
             out[f"{k}_streak"] = streak
             out[f"{k}_5d"] = round(sum(d[k] for d in days[-5:]))
+    rows = finmind("TaiwanStockPrice", code, (today - dt.timedelta(days=45)).isoformat())
+    closes = [r["close"] for r in sorted(rows or [], key=lambda r: r["date"]) if r.get("close")]
+    if len(closes) >= 20:
+        cur = closes[-1]
+        out["bias20"] = round((cur / (sum(closes[-20:]) / 20) - 1) * 100, 1)  # 月線乖離
+        out["ret_5d"] = round((cur / closes[-6] - 1) * 100, 1)
+        out["ret_20d"] = round((cur / closes[-21] - 1) * 100, 1) if len(closes) >= 21 else None
     return out
 
 
@@ -248,3 +255,67 @@ def score(f, volume_shares=None):
     if f.get("margin_chg"):
         tags.append(("margin", f"融資 {fmt_lots(f['margin_chg'])}"))
     return fund, flow, tags, warns
+
+
+# ------------------------------------------------------------- buy rating
+
+BUY_LABELS = ((75, "可考慮買進"), (60, "偏多觀察"), (45, "中性觀望"), (0, "暫不建議"))
+
+
+def buy_rating(fund, flow, f, warnings, sentiment=None, buzz_score=None, pct=None):
+    """'Is now a reasonable entry?' 0-100, separate from the attention-weighted 總分.
+
+    fundamentals 35 + institutional flow 35 + timing (not overextended) 20 + crowd 10,
+    minus 7 per risk warning. Returns (score, label, reasons[(+1|-1, text)]).
+    """
+    reasons = []
+    fund_v = 50 if fund is None else fund
+    flow_v = 50 if flow is None else flow
+    if fund is not None:
+        if fund >= 75:
+            reasons.append((1, "基本面強"))
+        elif fund < 40:
+            reasons.append((-1, "基本面弱"))
+    if flow is not None:
+        if flow >= 70:
+            reasons.append((1, "法人站在買方"))
+        elif flow < 40:
+            reasons.append((-1, "法人偏賣"))
+
+    # timing: distance from the 20-day average and the last week's run
+    bias, r5 = f.get("bias20"), f.get("ret_5d")
+    if bias is not None:
+        timing = 90 if bias <= 3 else 75 if bias <= 8 else 55 if bias <= 15 else 30 if bias <= 25 else 10
+        if bias < -10:
+            timing = 55  # still falling; cheap but no confirmation
+            reasons.append((-1, f"跌破月線 {bias:.0f}%，趨勢未止穩"))
+        elif bias > 15:
+            reasons.append((-1, f"離月線 +{bias:.0f}%，短線偏熱"))
+        elif bias <= 8 and (r5 is None or r5 <= 20):
+            reasons.append((1, "股價離月線不遠，位階不高"))
+        if r5 is not None and r5 > 20:
+            timing = min(timing, 20)
+            reasons.append((-1, f"5 日已漲 {r5:.0f}%"))
+    else:  # no history: fall back to today's move
+        timing = 60 if pct is None else 70 if pct < 3 else 45 if pct < 7 else 25
+        if pct is not None and pct >= 7:
+            reasons.append((-1, f"今天已漲 {pct:.1f}%，追高風險"))
+
+    # crowd: some optimism helps, a packed one-sided forum is a contrarian warning
+    if sentiment is None:
+        crowd = 70  # institutional board: nobody on the forums is talking about it yet
+    elif sentiment > 0.5 and (buzz_score or 0) >= 80:
+        crowd = 35
+        reasons.append((-1, "散戶一面倒看多，留意反指標"))
+    else:
+        crowd = max(10, min(80, 50 + sentiment * 60))
+        if sentiment <= -0.2:
+            reasons.append((-1, "論壇情緒偏空"))
+
+    score = 0.35 * fund_v + 0.35 * flow_v + 0.20 * timing + 0.10 * crowd - 7 * len(warnings)
+    reasons = [(-1, w) for w in warnings] + reasons  # hard warnings outrank soft reasons
+    score = round(max(0, min(100, score)))
+    label = next(l for t, l in BUY_LABELS if score >= t)
+    # strongest points first: positives then negatives, max 4
+    reasons = [r for r in reasons if r[0] > 0][:2] + [r for r in reasons if r[0] < 0][:2]
+    return score, label, [{"pos": r[0] > 0, "text": r[1]} for r in reasons]

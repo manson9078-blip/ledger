@@ -10,6 +10,14 @@
 <link rel="apple-touch-icon" href="../icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script>
+  (() => {
+    let t = null;
+    try { t = localStorage.getItem("picker.theme"); } catch {}
+    if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
 <style>
   :root {
     --bg: #0b0b0b;
@@ -24,16 +32,50 @@
     --flat: #b9b6b0;
     --warn: #e8b04a;
     --flow: #c9a86a;
+    --muted: #6f6d69;     /* 0050 line, older EPS bars */
+    --on-ink: #0b0b0b;    /* text on an --ink background */
+    --tint: rgba(255,255,255,0.06);
+    --tint-strong: rgba(255,255,255,0.12);
+    --tint-line: rgba(255,255,255,0.35);
+    --dot: rgba(255,255,255,0.08);
+    --glow: rgba(255,255,255,0.08);
+    --grad: linear-gradient(165deg, #1a1a1a 0%, #111 45%, #0a0a0a 100%);
+    --tabs-bg: #0e0e0e;
     --radius: 16px;
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f3ef;
+    --card: rgba(255,255,255,0.78);
+    --card-border: rgba(0,0,0,0.09);
+    --ink: #161616;
+    --ink-soft: #6b6965;
+    --ink-faint: #9c9994;
+    --line: #e4e2dd;
+    --up: #e0353b;
+    --down: #12985a;
+    --flat: #77746f;
+    --warn: #b27515;
+    --flow: #9a7631;
+    --muted: #a9a6a0;
+    --on-ink: #f4f3ef;
+    --tint: rgba(0,0,0,0.05);
+    --tint-strong: rgba(0,0,0,0.08);
+    --tint-line: rgba(0,0,0,0.3);
+    --dot: rgba(0,0,0,0.07);
+    --glow: rgba(255,255,255,0.9);
+    --grad: linear-gradient(165deg, #fbfaf7 0%, #f4f3ef 45%, #ecebe6 100%);
+    --tabs-bg: #f2f1ed;
+    color-scheme: light;
   }
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0;
     background-color: var(--bg);
     background-image:
-      radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
-      radial-gradient(120% 70% at 10% -10%, rgba(255,255,255,0.08) 0%, transparent 55%),
-      linear-gradient(165deg, #1a1a1a 0%, #111 45%, #0a0a0a 100%);
+      radial-gradient(var(--dot) 1px, transparent 1px),
+      radial-gradient(120% 70% at 10% -10%, var(--glow) 0%, transparent 55%),
+      var(--grad);
     background-size: 16px 16px, auto, auto;
     background-attachment: fixed;
     color: var(--ink);
@@ -41,21 +83,29 @@
     -webkit-font-smoothing: antialiased;
   }
   .wrap { max-width: 760px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 28px) 16px 60px; }
+  header { position: relative; }
+  .theme { position: absolute; top: 2px; right: 0; width: 38px; height: 38px; border-radius: 999px; cursor: pointer;
+           display: grid; place-items: center; color: var(--ink); background: var(--card); border: 1px solid var(--card-border); }
+  .theme svg { width: 18px; height: 18px; }
+  .theme .sun, [data-theme="light"] .theme .moon { display: none; }
+  [data-theme="light"] .theme .sun { display: block; }
   header h1 { font-size: 30px; font-weight: 900; letter-spacing: 0.02em; margin: 0; }
   header .sub { color: var(--ink-soft); font-size: 13px; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px 12px; }
   .chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px;
           border: 1px solid var(--card-border); font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
-  .chip.ai { color: var(--ink); border-color: rgba(255,255,255,0.35); }
+  .chip.stale { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+  .chip.ai { color: var(--ink); border-color: var(--tint-line); }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 20px 0 8px; }
   .stat { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; }
   .stat b { display: block; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .stat span { font-size: 12px; color: var(--ink-soft); }
   .tabs { display: flex; gap: 6px; margin: 22px 0 14px; position: sticky; top: 0; z-index: 5;
-          padding: 10px 0; background: linear-gradient(#0e0e0e 70%, transparent); }
+          padding: 10px 0; }
+  .tabs.stuck { background: linear-gradient(var(--tabs-bg) 70%, transparent); }
   .tabs button { flex: 1; font: inherit; font-size: 14px; font-weight: 500; color: var(--ink-soft);
                  background: var(--card); border: 1px solid var(--card-border); border-radius: 999px;
                  padding: 8px 0; cursor: pointer; }
-  .tabs button.on { color: #0b0b0b; background: var(--ink); border-color: var(--ink); }
+  .tabs button.on { color: var(--on-ink); background: var(--ink); border-color: var(--ink); }
   .panel { display: none; }
   .panel.on { display: block; }
 
@@ -75,24 +125,33 @@
   .bars { display: grid; grid-template-columns: 1fr 1fr 64px; gap: 12px; margin-top: 12px; align-items: end; }
   .bar label { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-soft); margin-bottom: 5px; }
   .bar label b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
-  .track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; position: relative; overflow: hidden; }
+  .track { height: 6px; background: var(--tint-strong); border-radius: 3px; position: relative; overflow: hidden; }
   .fill { position: absolute; top: 0; bottom: 0; left: 0; background: var(--ink); border-radius: 3px; }
-  .senti .track::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: rgba(255,255,255,0.35); }
+  .senti .track::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--tint-line); }
   .senti .fill { border-radius: 0; }
   .score { text-align: right; }
   .score b { font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; }
   .score span { display: block; font-size: 11px; color: var(--ink-soft); margin-bottom: 3px; }
   .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
   .sig { font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
-  .sig.bull { background: rgba(255,90,95,0.15); color: var(--up); }
-  .sig.bear { background: rgba(47,194,122,0.15); color: var(--down); }
-  .sig.neu  { background: rgba(255,255,255,0.08); color: var(--flat); }
-  .sig.flow { background: rgba(201,168,106,0.16); color: var(--flow); }
+  .sig.bull { background: color-mix(in srgb, var(--up) 15%, transparent); color: var(--up); }
+  .sig.bear { background: color-mix(in srgb, var(--down) 15%, transparent); color: var(--down); }
+  .sig.neu  { background: var(--tint-strong); color: var(--flat); }
+  .sig.flow { background: color-mix(in srgb, var(--flow) 16%, transparent); color: var(--flow); }
+  .profile { margin: 10px 0 0 40px; }
+  .themes { display: flex; flex-wrap: wrap; gap: 5px; }
+  .theme-tag { font-size: 12px; font-weight: 500; padding: 1px 9px; border-radius: 999px; white-space: nowrap;
+               color: var(--ink); border: 1px solid var(--tint-line); }
+  .theme-tag::before { content: "#"; color: var(--ink-faint); margin-right: 2px; }
+  .biz { margin: 7px 0 0; font-size: 12.5px; line-height: 1.6; color: var(--ink-soft);
+         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .biz b { font-weight: 500; color: var(--ink); margin-right: 6px; }
+  .pick.open .biz { -webkit-line-clamp: unset; }
   .summary { font-size: 13px; color: var(--ink); margin-top: 10px; line-height: 1.55; }
   .bars.two { grid-template-columns: 1fr 1fr 64px; margin-top: 10px; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .tag { font-size: 12px; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,0.06); color: var(--ink); white-space: nowrap; }
-  .tag.warn { background: rgba(232,176,74,0.14); color: var(--warn); }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 6px; background: var(--tint); color: var(--ink); white-space: nowrap; }
+  .tag.warn { background: color-mix(in srgb, var(--warn) 14%, transparent); color: var(--warn); }
   .detail { display: none; margin-top: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
   .pick.open .detail { display: block; }
   .kv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 8px; }
@@ -108,7 +167,23 @@
   .pick.open .expand { display: none; }
   .seg { display: flex; gap: 4px; padding: 4px; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; }
   .seg button { flex: 1; font: inherit; font-size: 13px; color: var(--ink-soft); background: none; border: 0; border-radius: 9px; padding: 7px 0; cursor: pointer; }
-  .seg button.on { background: rgba(255,255,255,0.12); color: var(--ink); font-weight: 500; }
+  .seg button.on { background: var(--tint-strong); color: var(--ink); font-weight: 500; }
+  .sortbar { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: -4px 0 10px; font-size: 12px; color: var(--ink-soft); }
+  .sortbar button { font: inherit; font-size: 12px; color: var(--ink-soft); background: none; border: 1px solid transparent;
+                    border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+  .sortbar button.on { color: var(--ink); border-color: var(--tint-line); }
+  .buy { display: grid; grid-template-columns: 58px 1fr; gap: 12px; align-items: center; margin-top: 12px;
+         padding: 10px 12px; border-radius: 12px; background: var(--tint); }
+  .ring { position: relative; width: 58px; height: 58px; }
+  .ring svg { width: 58px; height: 58px; transform: rotate(-90deg); }
+  .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 20px; font-weight: 900;
+            font-variant-numeric: tabular-nums; }
+  .buy .lbl { font-size: 14px; font-weight: 700; }
+  .buy .lbl small { font-size: 11px; font-weight: 400; color: var(--ink-soft); margin-left: 6px; }
+  .why { display: flex; flex-wrap: wrap; gap: 3px 10px; margin-top: 4px; font-size: 12px; color: var(--ink-soft); }
+  .why span::before { margin-right: 3px; font-weight: 700; }
+  .why .p::before { content: "＋"; color: var(--up); }
+  .why .n::before { content: "－"; color: var(--down); }
   .seg-note { font-size: 12px; color: var(--ink-soft); margin: -4px 2px 12px; line-height: 1.6; }
   .links { display: none; margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
   .pick.open .links { display: block; }
@@ -122,7 +197,7 @@
   .card h3 { margin: 0 0 12px; font-size: 15px; font-weight: 700; }
   .card p, .card li { font-size: 13px; line-height: 1.7; color: var(--ink-soft); }
   .card ul { padding-left: 18px; margin: 0; }
-  .card code { font-size: 12px; background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+  .card code { font-size: 12px; background: var(--tint-strong); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
   svg.chart { width: 100%; height: 180px; display: block; }
   .legend { display: flex; gap: 14px; font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
   .legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 5px; }
@@ -144,10 +219,15 @@
 <div class="wrap">
   <header>
     <h1>每日選股器</h1>
+    <button class="theme" id="theme" aria-label="切換深色／淺色主題" title="切換深色／淺色主題">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
     <div class="sub" id="sub">載入中…</div>
   </header>
   <div class="stats" id="stats"></div>
 
+  <div id="tabs-sentinel"></div>
   <nav class="tabs">
     <button class="on" data-p="today">今日榜單</button>
     <button data-p="track">過往績效</button>
@@ -160,6 +240,9 @@
       <button data-l="flow">法人布局</button>
     </div>
     <p class="seg-note" id="seg-note"></p>
+    <div class="sortbar" id="sortbar">排序
+      <button data-s="buy" class="on">買入評分</button><button data-s="score">熱度總分</button>
+    </div>
     <div id="list"></div>
   </section>
   <section class="panel" id="p-track"><div id="track"></div></section>
@@ -174,8 +257,10 @@
         <li><b>情緒 Sentiment</b>：有設定 <code>GEMINI_API_KEY</code> 時交給 Gemini 判讀；沒有就用內建股板用語詞典（噴、抱緊、住套房、停損…），並把推／噓納入計算。<code>[標的]</code> 文標題的多／空直接採用。</li>
         <li><b>基本面分</b>：營收年增率、EPS 是否獲利、單季 EPS 年增率、本益比高低，平均成 0–100。</li>
         <li><b>籌碼分</b>：三大法人買賣超占成交量比例、外資／投信連續買賣天數、外資 5 日累計方向。</li>
+        <li><b>買入評分</b>（0–100）：回答「現在進場划不划算」，跟熱度總分分開算。基本面 35% ＋ 法人籌碼 35% ＋ 位階 20%（離月線越遠、5 日漲越多分數越低）＋ 擁擠度 10%（論壇一面倒看多反而扣分），每個風險警示再扣 7 分。75 以上「可考慮買進」、60–74「偏多觀察」、45–59「中性觀望」、45 以下「暫不建議」。這只是模型分數，請搭配過往績效判斷它到底準不準。</li>
         <li><b>社群熱門總分</b> = 聲量 20% ＋ 情緒 20% ＋ 基本面 30% ＋ 籌碼 25% ＋ 前一日漲跌 5%。散戶看多但法人賣超時會標示背離警告。</li>
         <li><b>法人布局</b>：不看論壇，從全市場篩出「營收年增 ≥10%、有獲利、本益比 ≤40、成交量 ≥1,000 張、三大法人買超」的股票，依基本面 45% ＋ 籌碼 55% 排序。常是論壇還沒在討論的標的。</li>
+        <li><b>題材與業務</b>：由 Gemini 搭配 Google 搜尋整理每檔股票在做什麼、市場目前關注的題材，每 14 天更新一次。AI 整理可能有誤，重要資訊請以公司公告為準。</li>
         <li><b>過往績效</b>：隔天用收盤價回頭檢驗前一天「看多」的社群股與法人布局股，並跟 0050 比較。這是誠實的對照組，數字好看不好看都照實記錄。</li>
       </ul>
     </div>
@@ -194,6 +279,21 @@
 
 <script>
 const $ = s => document.querySelector(s);
+
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  document.querySelector('meta[name="theme-color"]').content = t === "light" ? "#f4f3ef" : "#0b0b0b";
+}
+applyTheme(document.documentElement.dataset.theme);
+// tabs only get a backdrop once they stick to the top
+new IntersectionObserver(([e]) => $(".tabs").classList.toggle("stuck", !e.isIntersecting))
+  .observe($("#tabs-sentinel"));
+
+$("#theme").onclick = () => {
+  const t = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  applyTheme(t);
+  try { localStorage.setItem("picker.theme", t); } catch {}
+};
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const cls = v => v == null ? "flat" : v > 0 ? "up" : v < 0 ? "down" : "flat";
 // TWSE 用民國年 1150929，TPEx/其他可能是 20260929
@@ -225,9 +325,9 @@ function epsChart(q) {
   const bw = W / q.length, y = v => top + (hi - v) / span * (H - top - bot);
   const bars = q.map(([per, v], i) => {
     const y0 = y(Math.max(v, 0)), h = Math.max(1, Math.abs(y(v) - y(0)));
-    return `<rect x="${i * bw + bw * 0.2}" y="${y0}" width="${bw * 0.6}" height="${h}" rx="2" fill="${v >= 0 ? (i === q.length - 1 ? "#f2f1ee" : "#6f6d69") : "var(--down)"}"/>
-      <text x="${i * bw + bw / 2}" y="${y0 - 3}" font-size="9" fill="#b9b6b0" text-anchor="middle">${v}</text>
-      <text x="${i * bw + bw / 2}" y="${H - 3}" font-size="9" fill="#5d5b58" text-anchor="middle">${per.slice(2)}</text>`;
+    return `<rect x="${i * bw + bw * 0.2}" y="${y0}" width="${bw * 0.6}" height="${h}" rx="2" style="fill:${v >= 0 ? (i === q.length - 1 ? "var(--ink)" : "var(--muted)") : "var(--down)"}"/>
+      <text x="${i * bw + bw / 2}" y="${y0 - 3}" font-size="9" style="fill:var(--flat)" text-anchor="middle">${v}</text>
+      <text x="${i * bw + bw / 2}" y="${H - 3}" font-size="9" style="fill:var(--ink-faint)" text-anchor="middle">${per.slice(2)}</text>`;
   }).join("");
   return `<div class="eps"><h4>單季 EPS（元）</h4><svg viewBox="0 0 ${W} ${H}">${bars}</svg></div>`;
 }
@@ -257,8 +357,23 @@ function detail(p) {
   </div>`;
 }
 
-function pickCard(p) {
+// 紅漲綠跌 convention: red = favourable
+const buyColor = v => v >= 75 ? "var(--up)" : v >= 60 ? "color-mix(in srgb, var(--up) 55%, var(--flat))" : v >= 45 ? "var(--flat)" : "var(--down)";
+function buyBlock(p) {
+  if (p.buy == null) return "";
+  const C = 2 * Math.PI * 24, c = buyColor(p.buy);
+  const why = (p.buy_why || []).map(w => `<span class="${w.pos ? "p" : "n"}">${esc(w.text)}</span>`).join("");
+  return `<div class="buy">
+    <div class="ring"><svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke-width="5" style="stroke:var(--tint-strong)"/>
+      <circle cx="29" cy="29" r="24" fill="none" stroke-width="5" stroke-linecap="round" style="stroke:${c}"
+        stroke-dasharray="${(p.buy / 100 * C).toFixed(1)} ${C.toFixed(1)}"/></svg><b>${p.buy}</b></div>
+    <div><div class="lbl" style="color:${c}">${esc(p.buy_label)}<small>買入評分</small></div>${why ? `<div class="why">${why}</div>` : ""}</div>
+  </div>`;
+}
+
+function pickCard(p, i) {
   const flow = p.buzz == null;
+  const pr = p.profile || {};
   const s = p.sentiment ?? 0;
   const sLeft = s >= 0 ? 50 : 50 + s * 50, sW = Math.abs(s) * 50;
   const sColor = s >= 0 ? "var(--up)" : "var(--down)";
@@ -269,10 +384,15 @@ function pickCard(p) {
     `<a href="${esc(l.url)}" target="_blank" rel="noopener"><em>${esc(l.src)} ${esc(l.nrec)}</em><span>${esc(l.title)}</span></a>`).join("");
   return `<article class="pick">
     <div class="top">
-      <div class="rank">${p.rank}</div>
-      <div class="nm"><div class="n">${esc(p.name || p.code)}</div><div class="c">${esc(p.code)} · ${esc(p.market || "—")}</div></div>
+      <div class="rank">${i + 1}</div>
+      <div class="nm"><div class="n">${esc(p.name || p.code)}</div><div class="c">${esc(p.code)} · ${esc(p.market || "—")}${pr.industry ? ` · ${esc(pr.industry)}` : ""}</div></div>
       <div class="px"><div class="p">${p.close ?? "—"}</div><div class="d ${cls(p.pct)}">${sign(p.pct)}</div></div>
     </div>
+    ${buyBlock(p)}
+    ${pr.themes?.length || pr.business ? `<div class="profile">
+      ${pr.themes?.length ? `<div class="themes">${pr.themes.map(t => `<span class="theme-tag">${esc(t)}</span>`).join("")}</div>` : ""}
+      ${pr.business ? `<p class="biz"><b>業務</b>${esc(pr.business)}</p>` : ""}
+    </div>` : ""}
     ${flow ? "" : `<div class="bars">
       <div class="bar"><label>聲量 <b>${Math.round(p.buzz)}</b></label><div class="track"><div class="fill" style="width:${p.buzz_score}%"></div></div></div>
       <div class="bar senti"><label>情緒 <b>${s > 0 ? "+" : ""}${s.toFixed(2)}</b></label><div class="track"><div class="fill" style="left:${sLeft}%;width:${sW}%;background:${sColor}"></div></div></div>
@@ -280,7 +400,7 @@ function pickCard(p) {
     </div>`}
     <div class="bars two">
       ${bar("基本面", p.fund_score)}${bar("籌碼", p.flow_score)}
-      <div class="score"><span>總分</span><b>${Math.round(p.score)}</b></div>
+      <div class="score"><span>熱度總分</span><b>${Math.round(p.score)}</b></div>
     </div>
     <div class="meta">
       <span class="sig ${sig}">${esc(p.signal)}</span>
@@ -302,24 +422,27 @@ function renderTrack(track) {
     $("#track").innerHTML = `<div class="card empty">還沒有績效紀錄。<br>選股器跑滿兩個交易日後，這裡會開始比較「前一天看多的股票」與 0050 的表現。</div>`;
     return;
   }
-  let a = 1, b = 1, c = 1;
-  const pts = track.map(t => {
-    a *= 1 + t.avg / 100; b *= 1 + (t.bench ?? 0) / 100; c *= 1 + (t.flow_avg ?? 0) / 100;
-    return { d: t.date, a: (a - 1) * 100, b: (b - 1) * 100, c: (c - 1) * 100 };
-  });
-  const hasFlow = track.some(t => t.flow_avg != null);
-  const all = pts.flatMap(p => hasFlow ? [p.a, p.b, p.c] : [p.a, p.b]).concat(0);
+  let a = 1, b = 1, c = 1, e = 1;
+  // start every line at 0% so even a single day draws a segment
+  const pts = [{ d: "", a: 0, b: 0, c: 0, e: 0 }].concat(track.map(t => {
+    a *= 1 + (t.avg ?? 0) / 100; b *= 1 + (t.bench ?? 0) / 100; c *= 1 + (t.flow_avg ?? 0) / 100; e *= 1 + (t.buy_avg ?? 0) / 100;
+    return { d: t.date, a: (a - 1) * 100, b: (b - 1) * 100, c: (c - 1) * 100, e: (e - 1) * 100 };
+  }));
+  const hasFlow = track.some(t => t.flow_avg != null), hasBuy = track.some(t => t.buy_avg != null);
+  const all = pts.flatMap(p => [p.a, p.b].concat(hasFlow ? [p.c] : [], hasBuy ? [p.e] : [])).concat(0);
   const lo = Math.min(...all), hi = Math.max(...all), span = hi - lo || 1;
   const W = 600, H = 180, pad = 8;
   const x = i => pts.length === 1 ? W / 2 : pad + i * (W - 2 * pad) / (pts.length - 1);
   const y = v => pad + (hi - v) / span * (H - 2 * pad);
   const line = k => pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join("");
   const last = pts[pts.length - 1];
-  const wins = track.reduce((s, t) => s + t.win * t.n / 100, 0), n = track.reduce((s, t) => s + t.n, 0);
-  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td><td>${t.win}%</td>
-      <td class="${cls(t.avg)}">${sign(t.avg)}</td><td class="${cls(t.flow_avg)}">${sign(t.flow_avg)}</td><td class="${cls(t.bench)}">${sign(t.bench)}</td></tr>`).join("");
+  const wins = track.reduce((s, t) => s + (t.win ?? 0) * t.n / 100, 0), n = track.reduce((s, t) => s + t.n, 0);
+  const bwins = track.reduce((s, t) => s + (t.buy_win ?? 0) * (t.buy_n ?? 0) / 100, 0), bn = track.reduce((s, t) => s + (t.buy_n ?? 0), 0);
+  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td>
+      <td class="${cls(t.buy_avg)}">${sign(t.buy_avg)}</td><td class="${cls(t.avg)}">${sign(t.avg)}</td><td class="${cls(t.flow_avg)}">${sign(t.flow_avg)}</td><td class="${cls(t.bench)}">${sign(t.bench)}</td></tr>`).join("");
   $("#track").innerHTML = `
-    <div class="stats" style="margin-top:0">
+    <div class="stats" style="margin-top:0;grid-template-columns:repeat(2,1fr)">
+      <div class="stat"><b class="${cls(last.e)}">${hasBuy ? sign(last.e) : "—"}</b><span>評分 ≥75 累積</span></div>
       <div class="stat"><b class="${cls(last.a)}">${sign(last.a)}</b><span>社群看多累積</span></div>
       <div class="stat"><b class="${cls(last.c)}">${hasFlow ? sign(last.c) : "—"}</b><span>法人布局累積</span></div>
       <div class="stat"><b class="${cls(last.b)}">${sign(last.b)}</b><span>0050 累積</span></div>
@@ -327,17 +450,18 @@ function renderTrack(track) {
     <div class="card">
       <h3>累積報酬（每日等權買進前一天的榜單）</h3>
       <svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-        <line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="rgba(255,255,255,0.15)" stroke-dasharray="3 4"/>
-        <path d="${line("b")}" fill="none" stroke="#6f6d69" stroke-width="2" vector-effect="non-scaling-stroke"/>
-        ${hasFlow ? `<path d="${line("c")}" fill="none" stroke="#c9a86a" stroke-width="2.5" vector-effect="non-scaling-stroke"/>` : ""}
-        <path d="${line("a")}" fill="none" stroke="#f2f1ee" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+        <line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" style="stroke:var(--tint-line)" stroke-dasharray="3 4"/>
+        <path d="${line("b")}" fill="none" style="stroke:var(--muted)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+        ${hasFlow ? `<path d="${line("c")}" fill="none" style="stroke:var(--flow)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>` : ""}
+        <path d="${line("a")}" fill="none" style="stroke:var(--ink)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+        ${hasBuy ? `<path d="${line("e")}" fill="none" style="stroke:var(--up)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>` : ""}
       </svg>
-      <div class="legend"><span><i style="background:#f2f1ee"></i>社群看多</span><span><i style="background:#c9a86a"></i>法人布局</span><span><i style="background:#6f6d69"></i>0050</span></div>
-      <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft)">社群看多勝率 ${n ? Math.round(wins / n * 100) : 0}%（${n} 檔次）</p>
+      <div class="legend" style="flex-wrap:wrap"><span><i style="background:var(--up)"></i>評分≥75</span><span><i style="background:var(--ink)"></i>社群看多</span><span><i style="background:var(--flow)"></i>法人布局</span><span><i style="background:var(--muted)"></i>0050</span></div>
+      <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft)">評分≥75 勝率 ${bn ? Math.round(bwins / bn * 100) + "%（" + bn + " 檔次）" : "尚無資料"} · 社群看多勝率 ${n ? Math.round(wins / n * 100) : 0}%（${n} 檔次）</p>
     </div>
     <div class="card">
       <h3>每日紀錄</h3>
-      <table><thead><tr><th>日期</th><th>勝率</th><th>社群</th><th>法人</th><th>0050</th></tr></thead><tbody>${rows}</tbody></table>
+      <table><thead><tr><th>日期</th><th>評分≥75</th><th>社群</th><th>法人</th><th>0050</th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
 }
 
@@ -351,6 +475,7 @@ function renderTrack(track) {
   }
   $("#sub").innerHTML = `<span>${esc(d.date)} 更新 · 收盤價 ${esc(fmtDate(d.quote_date))}</span>` +
     `<span>PTT ${d.sources.PTT || 0} 篇 · Dcard ${d.sources.Dcard || 0} 篇</span>` +
+    (d.social_stale ? `<span class="chip stale">社群榜沿用 ${esc(d.social_date.slice(5).replace("-", "/"))}</span>` : "") +
     (d.ai ? '<span class="chip ai">Gemini 情緒分析</span>' : '<span class="chip">詞典情緒分析</span>');
   const bulls = d.picks.filter(p => p.signal === "看多").length;
   $("#stats").innerHTML = `
@@ -358,19 +483,32 @@ function renderTrack(track) {
     <div class="stat"><b>${d.comments.toLocaleString()}</b><span>則推文</span></div>
     <div class="stat"><b>${bulls}<small style="font-size:14px;color:var(--ink-soft)"> / ${d.picks.length}</small></b><span>看多檔數</span></div>`;
   const notes = {
-    social: "PTT／Dcard 討論最熱的股票，再用基本面與法人籌碼打分。",
+    social: d.social_stale
+      ? `今天沒抓到 PTT／Dcard（雲端主機被擋，等電腦上的排程補跑），先沿用 ${d.social_date} 的榜單，股價已更新。`
+      : "PTT／Dcard 討論最熱的股票，再用基本面與法人籌碼打分。",
     flow: "論壇沒在聊、但營收成長、有獲利、法人正在買的股票。",
   };
+  let sortBy = "buy";
+  try { sortBy = localStorage.getItem("picker.sort") || "buy"; } catch {}
+  let current = "social";
   const show = which => {
-    const rows = which === "flow" ? (d.flow_picks || []) : d.picks;
+    current = which;
+    const key = sortBy === "buy" ? (p => p.buy ?? -1) : (p => p.score);
+    const rows = [...(which === "flow" ? (d.flow_picks || []) : d.picks)].sort((a, b) => key(b) - key(a) || b.score - a.score);
+    document.querySelectorAll("#sortbar button").forEach(b => b.classList.toggle("on", b.dataset.s === sortBy));
     document.querySelectorAll("#seg button").forEach(b => b.classList.toggle("on", b.dataset.l === which));
     $("#seg-note").textContent = notes[which];
-    $("#list").innerHTML = rows.length ? rows.map(pickCard).join("")
+    $("#list").innerHTML = rows.length ? rows.map((p, i) => pickCard(p, i)).join("")
       : `<div class="card empty">${which === "flow" ? "今天沒有符合條件的股票。" : "今天討論量不足，沒有選出標的。"}</div>`;
     document.querySelectorAll(".pick").forEach(el => el.onclick = e => { if (!e.target.closest("a")) el.classList.toggle("open"); });
     try { localStorage.setItem("picker.list", which); } catch {}
   };
   document.querySelectorAll("#seg button").forEach(b => b.onclick = () => show(b.dataset.l));
+  document.querySelectorAll("#sortbar button").forEach(b => b.onclick = () => {
+    sortBy = b.dataset.s;
+    try { localStorage.setItem("picker.sort", sortBy); } catch {}
+    show(current);
+  });
   let saved = "social";
   try { saved = localStorage.getItem("picker.list") || "social"; } catch {}
   show(saved === "flow" && d.flow_picks?.length ? "flow" : "social");

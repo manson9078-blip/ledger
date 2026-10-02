@@ -33,8 +33,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # the PC's scheduled run may have pushed fresher (full) data meanwhile; it wins
+          git fetch -q origin "${GITHUB_REF_NAME}"
+          if ! git diff --quiet HEAD "origin/${GITHUB_REF_NAME}" -- stock/data; then
+            echo "Newer stock data was pushed during this run; skipping commit."
+            exit 0
+          fi
           git add stock/data
           git diff --cached --quiet && exit 0
-          git commit -m "Stock picks $(TZ=Asia/Taipei date +%F)"
+          git commit -m "Stock picks $(TZ=Asia/Taipei date +%F) (cloud)"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
