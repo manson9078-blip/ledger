@@ -168,6 +168,22 @@
   .seg { display: flex; gap: 4px; padding: 4px; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; }
   .seg button { flex: 1; font: inherit; font-size: 13px; color: var(--ink-soft); background: none; border: 0; border-radius: 9px; padding: 7px 0; cursor: pointer; }
   .seg button.on { background: var(--tint-strong); color: var(--ink); font-weight: 500; }
+  .sortbar { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: -4px 0 10px; font-size: 12px; color: var(--ink-soft); }
+  .sortbar button { font: inherit; font-size: 12px; color: var(--ink-soft); background: none; border: 1px solid transparent;
+                    border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+  .sortbar button.on { color: var(--ink); border-color: var(--tint-line); }
+  .buy { display: grid; grid-template-columns: 58px 1fr; gap: 12px; align-items: center; margin-top: 12px;
+         padding: 10px 12px; border-radius: 12px; background: var(--tint); }
+  .ring { position: relative; width: 58px; height: 58px; }
+  .ring svg { width: 58px; height: 58px; transform: rotate(-90deg); }
+  .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 20px; font-weight: 900;
+            font-variant-numeric: tabular-nums; }
+  .buy .lbl { font-size: 14px; font-weight: 700; }
+  .buy .lbl small { font-size: 11px; font-weight: 400; color: var(--ink-soft); margin-left: 6px; }
+  .why { display: flex; flex-wrap: wrap; gap: 3px 10px; margin-top: 4px; font-size: 12px; color: var(--ink-soft); }
+  .why span::before { margin-right: 3px; font-weight: 700; }
+  .why .p::before { content: "＋"; color: var(--up); }
+  .why .n::before { content: "－"; color: var(--down); }
   .seg-note { font-size: 12px; color: var(--ink-soft); margin: -4px 2px 12px; line-height: 1.6; }
   .links { display: none; margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
   .pick.open .links { display: block; }
@@ -224,6 +240,9 @@
       <button data-l="flow">法人布局</button>
     </div>
     <p class="seg-note" id="seg-note"></p>
+    <div class="sortbar" id="sortbar">排序
+      <button data-s="buy" class="on">買入評分</button><button data-s="score">熱度總分</button>
+    </div>
     <div id="list"></div>
   </section>
   <section class="panel" id="p-track"><div id="track"></div></section>
@@ -238,6 +257,7 @@
         <li><b>情緒 Sentiment</b>：有設定 <code>GEMINI_API_KEY</code> 時交給 Gemini 判讀；沒有就用內建股板用語詞典（噴、抱緊、住套房、停損…），並把推／噓納入計算。<code>[標的]</code> 文標題的多／空直接採用。</li>
         <li><b>基本面分</b>：營收年增率、EPS 是否獲利、單季 EPS 年增率、本益比高低，平均成 0–100。</li>
         <li><b>籌碼分</b>：三大法人買賣超占成交量比例、外資／投信連續買賣天數、外資 5 日累計方向。</li>
+        <li><b>買入評分</b>（0–100）：回答「現在進場划不划算」，跟熱度總分分開算。基本面 35% ＋ 法人籌碼 35% ＋ 位階 20%（離月線越遠、5 日漲越多分數越低）＋ 擁擠度 10%（論壇一面倒看多反而扣分），每個風險警示再扣 7 分。75 以上「可考慮買進」、60–74「偏多觀察」、45–59「中性觀望」、45 以下「暫不建議」。這只是模型分數，請搭配過往績效判斷它到底準不準。</li>
         <li><b>社群熱門總分</b> = 聲量 20% ＋ 情緒 20% ＋ 基本面 30% ＋ 籌碼 25% ＋ 前一日漲跌 5%。散戶看多但法人賣超時會標示背離警告。</li>
         <li><b>法人布局</b>：不看論壇，從全市場篩出「營收年增 ≥10%、有獲利、本益比 ≤40、成交量 ≥1,000 張、三大法人買超」的股票，依基本面 45% ＋ 籌碼 55% 排序。常是論壇還沒在討論的標的。</li>
         <li><b>題材與業務</b>：由 Gemini 搭配 Google 搜尋整理每檔股票在做什麼、市場目前關注的題材，每 14 天更新一次。AI 整理可能有誤，重要資訊請以公司公告為準。</li>
@@ -337,7 +357,21 @@ function detail(p) {
   </div>`;
 }
 
-function pickCard(p) {
+// 紅漲綠跌 convention: red = favourable
+const buyColor = v => v >= 75 ? "var(--up)" : v >= 60 ? "color-mix(in srgb, var(--up) 55%, var(--flat))" : v >= 45 ? "var(--flat)" : "var(--down)";
+function buyBlock(p) {
+  if (p.buy == null) return "";
+  const C = 2 * Math.PI * 24, c = buyColor(p.buy);
+  const why = (p.buy_why || []).map(w => `<span class="${w.pos ? "p" : "n"}">${esc(w.text)}</span>`).join("");
+  return `<div class="buy">
+    <div class="ring"><svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke-width="5" style="stroke:var(--tint-strong)"/>
+      <circle cx="29" cy="29" r="24" fill="none" stroke-width="5" stroke-linecap="round" style="stroke:${c}"
+        stroke-dasharray="${(p.buy / 100 * C).toFixed(1)} ${C.toFixed(1)}"/></svg><b>${p.buy}</b></div>
+    <div><div class="lbl" style="color:${c}">${esc(p.buy_label)}<small>買入評分</small></div>${why ? `<div class="why">${why}</div>` : ""}</div>
+  </div>`;
+}
+
+function pickCard(p, i) {
   const flow = p.buzz == null;
   const pr = p.profile || {};
   const s = p.sentiment ?? 0;
@@ -350,10 +384,11 @@ function pickCard(p) {
     `<a href="${esc(l.url)}" target="_blank" rel="noopener"><em>${esc(l.src)} ${esc(l.nrec)}</em><span>${esc(l.title)}</span></a>`).join("");
   return `<article class="pick">
     <div class="top">
-      <div class="rank">${p.rank}</div>
+      <div class="rank">${i + 1}</div>
       <div class="nm"><div class="n">${esc(p.name || p.code)}</div><div class="c">${esc(p.code)} · ${esc(p.market || "—")}${pr.industry ? ` · ${esc(pr.industry)}` : ""}</div></div>
       <div class="px"><div class="p">${p.close ?? "—"}</div><div class="d ${cls(p.pct)}">${sign(p.pct)}</div></div>
     </div>
+    ${buyBlock(p)}
     ${pr.themes?.length || pr.business ? `<div class="profile">
       ${pr.themes?.length ? `<div class="themes">${pr.themes.map(t => `<span class="theme-tag">${esc(t)}</span>`).join("")}</div>` : ""}
       ${pr.business ? `<p class="biz"><b>業務</b>${esc(pr.business)}</p>` : ""}
@@ -365,7 +400,7 @@ function pickCard(p) {
     </div>`}
     <div class="bars two">
       ${bar("基本面", p.fund_score)}${bar("籌碼", p.flow_score)}
-      <div class="score"><span>總分</span><b>${Math.round(p.score)}</b></div>
+      <div class="score"><span>熱度總分</span><b>${Math.round(p.score)}</b></div>
     </div>
     <div class="meta">
       <span class="sig ${sig}">${esc(p.signal)}</span>
@@ -387,14 +422,14 @@ function renderTrack(track) {
     $("#track").innerHTML = `<div class="card empty">還沒有績效紀錄。<br>選股器跑滿兩個交易日後，這裡會開始比較「前一天看多的股票」與 0050 的表現。</div>`;
     return;
   }
-  let a = 1, b = 1, c = 1;
+  let a = 1, b = 1, c = 1, e = 1;
   // start every line at 0% so even a single day draws a segment
-  const pts = [{ d: "", a: 0, b: 0, c: 0 }].concat(track.map(t => {
-    a *= 1 + (t.avg ?? 0) / 100; b *= 1 + (t.bench ?? 0) / 100; c *= 1 + (t.flow_avg ?? 0) / 100;
-    return { d: t.date, a: (a - 1) * 100, b: (b - 1) * 100, c: (c - 1) * 100 };
+  const pts = [{ d: "", a: 0, b: 0, c: 0, e: 0 }].concat(track.map(t => {
+    a *= 1 + (t.avg ?? 0) / 100; b *= 1 + (t.bench ?? 0) / 100; c *= 1 + (t.flow_avg ?? 0) / 100; e *= 1 + (t.buy_avg ?? 0) / 100;
+    return { d: t.date, a: (a - 1) * 100, b: (b - 1) * 100, c: (c - 1) * 100, e: (e - 1) * 100 };
   }));
-  const hasFlow = track.some(t => t.flow_avg != null);
-  const all = pts.flatMap(p => hasFlow ? [p.a, p.b, p.c] : [p.a, p.b]).concat(0);
+  const hasFlow = track.some(t => t.flow_avg != null), hasBuy = track.some(t => t.buy_avg != null);
+  const all = pts.flatMap(p => [p.a, p.b].concat(hasFlow ? [p.c] : [], hasBuy ? [p.e] : [])).concat(0);
   const lo = Math.min(...all), hi = Math.max(...all), span = hi - lo || 1;
   const W = 600, H = 180, pad = 8;
   const x = i => pts.length === 1 ? W / 2 : pad + i * (W - 2 * pad) / (pts.length - 1);
@@ -402,10 +437,12 @@ function renderTrack(track) {
   const line = k => pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join("");
   const last = pts[pts.length - 1];
   const wins = track.reduce((s, t) => s + (t.win ?? 0) * t.n / 100, 0), n = track.reduce((s, t) => s + t.n, 0);
-  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td><td>${t.win == null ? "—" : t.win + "%"}</td>
-      <td class="${cls(t.avg)}">${sign(t.avg)}</td><td class="${cls(t.flow_avg)}">${sign(t.flow_avg)}</td><td class="${cls(t.bench)}">${sign(t.bench)}</td></tr>`).join("");
+  const bwins = track.reduce((s, t) => s + (t.buy_win ?? 0) * (t.buy_n ?? 0) / 100, 0), bn = track.reduce((s, t) => s + (t.buy_n ?? 0), 0);
+  const rows = track.slice().reverse().map(t => `<tr><td>${t.date.slice(5)}</td>
+      <td class="${cls(t.buy_avg)}">${sign(t.buy_avg)}</td><td class="${cls(t.avg)}">${sign(t.avg)}</td><td class="${cls(t.flow_avg)}">${sign(t.flow_avg)}</td><td class="${cls(t.bench)}">${sign(t.bench)}</td></tr>`).join("");
   $("#track").innerHTML = `
-    <div class="stats" style="margin-top:0">
+    <div class="stats" style="margin-top:0;grid-template-columns:repeat(2,1fr)">
+      <div class="stat"><b class="${cls(last.e)}">${hasBuy ? sign(last.e) : "—"}</b><span>評分 ≥75 累積</span></div>
       <div class="stat"><b class="${cls(last.a)}">${sign(last.a)}</b><span>社群看多累積</span></div>
       <div class="stat"><b class="${cls(last.c)}">${hasFlow ? sign(last.c) : "—"}</b><span>法人布局累積</span></div>
       <div class="stat"><b class="${cls(last.b)}">${sign(last.b)}</b><span>0050 累積</span></div>
@@ -417,13 +454,14 @@ function renderTrack(track) {
         <path d="${line("b")}" fill="none" style="stroke:var(--muted)" stroke-width="2" vector-effect="non-scaling-stroke"/>
         ${hasFlow ? `<path d="${line("c")}" fill="none" style="stroke:var(--flow)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>` : ""}
         <path d="${line("a")}" fill="none" style="stroke:var(--ink)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+        ${hasBuy ? `<path d="${line("e")}" fill="none" style="stroke:var(--up)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>` : ""}
       </svg>
-      <div class="legend"><span><i style="background:var(--ink)"></i>社群看多</span><span><i style="background:var(--flow)"></i>法人布局</span><span><i style="background:var(--muted)"></i>0050</span></div>
-      <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft)">社群看多勝率 ${n ? Math.round(wins / n * 100) : 0}%（${n} 檔次）</p>
+      <div class="legend" style="flex-wrap:wrap"><span><i style="background:var(--up)"></i>評分≥75</span><span><i style="background:var(--ink)"></i>社群看多</span><span><i style="background:var(--flow)"></i>法人布局</span><span><i style="background:var(--muted)"></i>0050</span></div>
+      <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft)">評分≥75 勝率 ${bn ? Math.round(bwins / bn * 100) + "%（" + bn + " 檔次）" : "尚無資料"} · 社群看多勝率 ${n ? Math.round(wins / n * 100) : 0}%（${n} 檔次）</p>
     </div>
     <div class="card">
       <h3>每日紀錄</h3>
-      <table><thead><tr><th>日期</th><th>勝率</th><th>社群</th><th>法人</th><th>0050</th></tr></thead><tbody>${rows}</tbody></table>
+      <table><thead><tr><th>日期</th><th>評分≥75</th><th>社群</th><th>法人</th><th>0050</th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
 }
 
@@ -450,16 +488,27 @@ function renderTrack(track) {
       : "PTT／Dcard 討論最熱的股票，再用基本面與法人籌碼打分。",
     flow: "論壇沒在聊、但營收成長、有獲利、法人正在買的股票。",
   };
+  let sortBy = "buy";
+  try { sortBy = localStorage.getItem("picker.sort") || "buy"; } catch {}
+  let current = "social";
   const show = which => {
-    const rows = which === "flow" ? (d.flow_picks || []) : d.picks;
+    current = which;
+    const key = sortBy === "buy" ? (p => p.buy ?? -1) : (p => p.score);
+    const rows = [...(which === "flow" ? (d.flow_picks || []) : d.picks)].sort((a, b) => key(b) - key(a) || b.score - a.score);
+    document.querySelectorAll("#sortbar button").forEach(b => b.classList.toggle("on", b.dataset.s === sortBy));
     document.querySelectorAll("#seg button").forEach(b => b.classList.toggle("on", b.dataset.l === which));
     $("#seg-note").textContent = notes[which];
-    $("#list").innerHTML = rows.length ? rows.map(pickCard).join("")
+    $("#list").innerHTML = rows.length ? rows.map((p, i) => pickCard(p, i)).join("")
       : `<div class="card empty">${which === "flow" ? "今天沒有符合條件的股票。" : "今天討論量不足，沒有選出標的。"}</div>`;
     document.querySelectorAll(".pick").forEach(el => el.onclick = e => { if (!e.target.closest("a")) el.classList.toggle("open"); });
     try { localStorage.setItem("picker.list", which); } catch {}
   };
   document.querySelectorAll("#seg button").forEach(b => b.onclick = () => show(b.dataset.l));
+  document.querySelectorAll("#sortbar button").forEach(b => b.onclick = () => {
+    sortBy = b.dataset.s;
+    try { localStorage.setItem("picker.sort", sortBy); } catch {}
+    show(current);
+  });
   let saved = "social";
   try { saved = localStorage.getItem("picker.list") || "social"; } catch {}
   show(saved === "flow" && d.flow_picks?.length ? "flow" : "social");

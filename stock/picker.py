@@ -353,7 +353,8 @@ def enrich(r, fund, today):
     fs, ws, tags, warns = fd.score(f, (r.get("_q") or {}).get("volume"))
     keep = ("pe", "dy", "pb", "rev_ym", "rev_yoy", "rev_mom", "eps_period", "eps_ytd", "eps_q", "eps_q_yoy", "eps_turnaround",
             "gross_margin", "op_margin", "foreign", "trust", "dealer", "inst", "foreign_5d", "trust_5d",
-            "foreign_streak", "trust_streak", "margin", "margin_chg", "short", "short_chg")
+            "foreign_streak", "trust_streak", "margin", "margin_chg", "short", "short_chg",
+            "bias20", "ret_5d", "ret_20d")
     r["fund"] = {k: f[k] for k in keep if k in f}
     r["fund_score"], r["flow_score"], r["tags"], r["warnings"] = fs, ws, [t[1] for t in tags], warns
     return fs, ws
@@ -378,6 +379,7 @@ def flow_list(fund, quotes, today, exclude=(), top=10):
         fs, ws = enrich(r, fund, today)
         r["score"] = round(0.45 * (fs or 50) + 0.55 * (ws or 50), 1)
         r["signal"] = "法人買" if (ws or 0) >= 60 else "觀察"
+        r["buy"], r["buy_label"], r["buy_why"] = fd.buy_rating(fs, ws, r["fund"], r["warnings"], pct=r["pct"])
         r.pop("_q")
         rows.append(r)
     rows.sort(key=lambda r: r["score"], reverse=True)
@@ -433,6 +435,8 @@ def rank(agg, quotes, fund=None, gemini=None, top=20, today=None):
         if (fund is not None and r["signal"] == "看多" and (r["fund"].get("inst") or 0) < 0
                 and (r["fund"].get("foreign_5d") or 0) < 0):
             r["warnings"].insert(0, "散戶看多、法人賣超")
+        r["buy"], r["buy_label"], r["buy_why"] = fd.buy_rating(
+            fs, ws, r.get("fund", {}), r.get("warnings", []), r["sentiment"], r["buzz_score"], r["pct"])
         r.pop("_snippets")
         r.pop("_q")
     rows.sort(key=lambda r: r["score"], reverse=True)
@@ -450,10 +454,12 @@ def update_track(prev, quotes):
     if not prev or any(t["date"] == prev["date"] for t in track):
         return track
 
-    def returns(picks, want=None):
+    def returns(picks, want=None, min_buy=None):
         res = []
         for p in picks or []:
             if (want and p.get("signal") != want) or not p.get("close"):
+                continue
+            if min_buy is not None and (p.get("buy") or 0) < min_buy:
                 continue
             q = quotes.get(p["code"])
             if not q or not q["close"] or q.get("date") == prev.get("quote_date"):
@@ -464,6 +470,9 @@ def update_track(prev, quotes):
     # a carried-over social board was already scored on the day it was made
     res = [] if prev.get("social_stale") else returns(prev["picks"], "看多")
     flow = returns(prev.get("flow_picks"))
+    # high buy-rating names from both boards, to check whether the rating means anything
+    social = [] if prev.get("social_stale") else prev["picks"]
+    buy = list({x["code"]: x for x in returns(social + (prev.get("flow_picks") or []), min_buy=75)}.values())
     if not res and not flow:
         return track
     bench = quotes.get("0050", {})
@@ -474,7 +483,9 @@ def update_track(prev, quotes):
                   "bench": round((bench["close"] / b0 - 1) * 100, 2) if b0 and bench.get("close") else None,
                   "picks": res,
                   **({"flow_n": len(flow), "flow_avg": round(sum(x["ret"] for x in flow) / len(flow), 2),
-                      "flow_win": round(sum(x["ret"] > 0 for x in flow) / len(flow) * 100)} if flow else {})})
+                      "flow_win": round(sum(x["ret"] > 0 for x in flow) / len(flow) * 100)} if flow else {}),
+                  **({"buy_n": len(buy), "buy_avg": round(sum(x["ret"] for x in buy) / len(buy), 2),
+                      "buy_win": round(sum(x["ret"] > 0 for x in buy) / len(buy) * 100)} if buy else {})})
     track = track[-120:]
     path.write_text(json.dumps(track, ensure_ascii=False, indent=1), "utf-8")
     return track
@@ -560,7 +571,7 @@ def main():
                 "trust_streak", "margin_chg")
         w.writerow(["榜單", "排名", "代號", "名稱", "市場", "產業", "題材", "業務", "收盤", "漲跌%", "聲量", "留言", "情緒", "訊號",
                     "本益比", "殖利率%", "營收YoY%", "累計EPS", "單季EPS YoY%", "毛利率%", "外資(張)", "投信(張)",
-                    "三大法人(張)", "投信連續天數", "融資增減(張)", "基本面分", "籌碼分", "警示", "總分"])
+                    "三大法人(張)", "投信連續天數", "融資增減(張)", "基本面分", "籌碼分", "警示", "總分", "買入評分", "評等", "理由"])
         for board, rows in (("社群熱門", picks), ("法人布局", flow_picks)):
             for p in rows:
                 f = p.get("fund", {})
@@ -568,7 +579,8 @@ def main():
                 w.writerow([board, p["rank"], p["code"], p["name"], p["market"], pr.get("industry"),
                             "、".join(pr.get("themes", [])), pr.get("business"), p["close"], p["pct"], p.get("buzz"),
                             p.get("comments"), p.get("sentiment"), p["signal"], *(f.get(c) for c in cols),
-                            p.get("fund_score"), p.get("flow_score"), "、".join(p.get("warnings", [])), p["score"]])
+                            p.get("fund_score"), p.get("flow_score"), "、".join(p.get("warnings", [])), p["score"],
+                            p.get("buy"), p.get("buy_label"), "；".join(("+" if x["pos"] else "-") + x["text"] for x in p.get("buy_why", []))])
     log(f"done: {len(picks)} picks from {len(posts)} posts" + (" (social board carried over)" if stale else ""))
     for p in picks[:10]:
         log(f"  #{p['rank']:>2} {p['code']} {p['name']:<6} score={p['score']} buzz={p['buzz']} sent={p['sentiment']:+.2f}"
