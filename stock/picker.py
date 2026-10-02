@@ -24,6 +24,7 @@ import requests
 from bs4 import BeautifulSoup
 
 import fundamentals as fd
+import profiles as pf
 
 TZ = dt.timezone(dt.timedelta(hours=8))
 DATA_DIR = Path(__file__).resolve().parent / "data"
@@ -487,6 +488,7 @@ def main():
     ap.add_argument("--top", type=int, default=20)
     ap.add_argument("--no-dcard", action="store_true")
     ap.add_argument("--no-fundamentals", action="store_true")
+    ap.add_argument("--no-profiles", action="store_true", help="skip 業務/題材 lookups")
     args = ap.parse_args()
 
     now = dt.datetime.now(TZ)
@@ -524,6 +526,10 @@ def main():
     else:
         picks = rank(aggregate(posts, matcher), quotes, fund, gemini_sentiment, args.top, now.date())
     flow_picks = flow_list(fund, quotes, now.date(), {p["code"] for p in picks}) if fund else []
+    if not args.no_profiles:
+        rows = picks + flow_picks
+        ctx = lambda r: [l["title"] for l in r.get("links", [])] + ([r["summary"]] if r.get("summary") else [])
+        pf.attach(rows, pf.ensure([(r["code"], r["name"], ctx(r)) for r in rows], now.date()))
     quote_date = next((q["date"] for q in quotes.values() if q.get("date")), None)
     result = {
         "date": today,
@@ -552,13 +558,15 @@ def main():
         w = csv.writer(f)
         cols = ("pe", "dy", "rev_yoy", "eps_ytd", "eps_q_yoy", "gross_margin", "foreign", "trust", "inst",
                 "trust_streak", "margin_chg")
-        w.writerow(["榜單", "排名", "代號", "名稱", "市場", "收盤", "漲跌%", "聲量", "留言", "情緒", "訊號",
+        w.writerow(["榜單", "排名", "代號", "名稱", "市場", "產業", "題材", "業務", "收盤", "漲跌%", "聲量", "留言", "情緒", "訊號",
                     "本益比", "殖利率%", "營收YoY%", "累計EPS", "單季EPS YoY%", "毛利率%", "外資(張)", "投信(張)",
                     "三大法人(張)", "投信連續天數", "融資增減(張)", "基本面分", "籌碼分", "警示", "總分"])
         for board, rows in (("社群熱門", picks), ("法人布局", flow_picks)):
             for p in rows:
                 f = p.get("fund", {})
-                w.writerow([board, p["rank"], p["code"], p["name"], p["market"], p["close"], p["pct"], p.get("buzz"),
+                pr = p.get("profile", {})
+                w.writerow([board, p["rank"], p["code"], p["name"], p["market"], pr.get("industry"),
+                            "、".join(pr.get("themes", [])), pr.get("business"), p["close"], p["pct"], p.get("buzz"),
                             p.get("comments"), p.get("sentiment"), p["signal"], *(f.get(c) for c in cols),
                             p.get("fund_score"), p.get("flow_score"), "、".join(p.get("warnings", [])), p["score"]])
     log(f"done: {len(picks)} picks from {len(posts)} posts" + (" (social board carried over)" if stale else ""))

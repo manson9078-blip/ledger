@@ -138,6 +138,15 @@
   .sig.bear { background: color-mix(in srgb, var(--down) 15%, transparent); color: var(--down); }
   .sig.neu  { background: var(--tint-strong); color: var(--flat); }
   .sig.flow { background: color-mix(in srgb, var(--flow) 16%, transparent); color: var(--flow); }
+  .profile { margin: 10px 0 0 40px; }
+  .themes { display: flex; flex-wrap: wrap; gap: 5px; }
+  .theme-tag { font-size: 12px; font-weight: 500; padding: 1px 9px; border-radius: 999px; white-space: nowrap;
+               color: var(--ink); border: 1px solid var(--tint-line); }
+  .theme-tag::before { content: "#"; color: var(--ink-faint); margin-right: 2px; }
+  .biz { margin: 7px 0 0; font-size: 12.5px; line-height: 1.6; color: var(--ink-soft);
+         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .biz b { font-weight: 500; color: var(--ink); margin-right: 6px; }
+  .pick.open .biz { -webkit-line-clamp: unset; }
   .summary { font-size: 13px; color: var(--ink); margin-top: 10px; line-height: 1.55; }
   .bars.two { grid-template-columns: 1fr 1fr 64px; margin-top: 10px; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
@@ -231,6 +240,7 @@
         <li><b>籌碼分</b>：三大法人買賣超占成交量比例、外資／投信連續買賣天數、外資 5 日累計方向。</li>
         <li><b>社群熱門總分</b> = 聲量 20% ＋ 情緒 20% ＋ 基本面 30% ＋ 籌碼 25% ＋ 前一日漲跌 5%。散戶看多但法人賣超時會標示背離警告。</li>
         <li><b>法人布局</b>：不看論壇，從全市場篩出「營收年增 ≥10%、有獲利、本益比 ≤40、成交量 ≥1,000 張、三大法人買超」的股票，依基本面 45% ＋ 籌碼 55% 排序。常是論壇還沒在討論的標的。</li>
+        <li><b>題材與業務</b>：由 Gemini 搭配 Google 搜尋整理每檔股票在做什麼、市場目前關注的題材，每 14 天更新一次。AI 整理可能有誤，重要資訊請以公司公告為準。</li>
         <li><b>過往績效</b>：隔天用收盤價回頭檢驗前一天「看多」的社群股與法人布局股，並跟 0050 比較。這是誠實的對照組，數字好看不好看都照實記錄。</li>
       </ul>
     </div>
@@ -329,6 +339,7 @@ function detail(p) {
 
 function pickCard(p) {
   const flow = p.buzz == null;
+  const pr = p.profile || {};
   const s = p.sentiment ?? 0;
   const sLeft = s >= 0 ? 50 : 50 + s * 50, sW = Math.abs(s) * 50;
   const sColor = s >= 0 ? "var(--up)" : "var(--down)";
@@ -340,9 +351,13 @@ function pickCard(p) {
   return `<article class="pick">
     <div class="top">
       <div class="rank">${p.rank}</div>
-      <div class="nm"><div class="n">${esc(p.name || p.code)}</div><div class="c">${esc(p.code)} · ${esc(p.market || "—")}</div></div>
+      <div class="nm"><div class="n">${esc(p.name || p.code)}</div><div class="c">${esc(p.code)} · ${esc(p.market || "—")}${pr.industry ? ` · ${esc(pr.industry)}` : ""}</div></div>
       <div class="px"><div class="p">${p.close ?? "—"}</div><div class="d ${cls(p.pct)}">${sign(p.pct)}</div></div>
     </div>
+    ${pr.themes?.length || pr.business ? `<div class="profile">
+      ${pr.themes?.length ? `<div class="themes">${pr.themes.map(t => `<span class="theme-tag">${esc(t)}</span>`).join("")}</div>` : ""}
+      ${pr.business ? `<p class="biz"><b>業務</b>${esc(pr.business)}</p>` : ""}
+    </div>` : ""}
     ${flow ? "" : `<div class="bars">
       <div class="bar"><label>聲量 <b>${Math.round(p.buzz)}</b></label><div class="track"><div class="fill" style="width:${p.buzz_score}%"></div></div></div>
       <div class="bar senti"><label>情緒 <b>${s > 0 ? "+" : ""}${s.toFixed(2)}</b></label><div class="track"><div class="fill" style="left:${sLeft}%;width:${sW}%;background:${sColor}"></div></div></div>
