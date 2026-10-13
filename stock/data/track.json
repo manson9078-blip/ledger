@@ -345,5 +345,19 @@
   "buy_n": 11,
   "buy_avg": -0.28,
   "buy_win": 45
+ },
+ {
+  "date": "2026-10-12",
+  "n": 0,
+  "avg": null,
+  "win": null,
+  "bench": -0.13,
+  "picks": [],
+  "flow_n": 10,
+  "flow_avg": 0.97,
+  "flow_win": 80,
+  "buy_n": 10,
+  "buy_avg": 0.97,
+  "buy_win": 80
  }
 ]
