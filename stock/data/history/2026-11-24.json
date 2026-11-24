@@ -1,0 +1,3122 @@
+{
+ "date": "2026-11-24",
+ "generated_at": "2026-11-24T17:45+08:00",
+ "since": "2026-11-23",
+ "quote_date": "1151123",
+ "social_date": "2026-11-24",
+ "social_stale": false,
+ "sources": {
+  "PTT": 217,
+  "Dcard": 0
+ },
+ "comments": 39290,
+ "ai": false,
+ "benchmark": {
+  "code": "0050",
+  "close": 87.0,
+  "pct": 3.02
+ },
+ "data_dates": {
+  "revenue": "2026-10",
+  "eps": "2026Q3",
+  "flow": "2026-11-24"
+ },
+ "picks": [
+  {
+   "code": "6667",
+   "buzz": 28.0,
+   "posts": 1.0,
+   "comments": 23,
+   "push": 15,
+   "boo": 0,
+   "sentiment": 0.238,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "[情報] 6667 信紘科董事會決議買回庫藏股",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795441471.A.1DB.html",
+     "src": "PTT",
+     "nrec": "18"
+    }
+   ],
+   "name": "信紘科",
+   "market": "上櫃",
+   "close": 236.5,
+   "pct": 10.0,
+   "buzz_score": 45.5,
+   "fund": {
+    "pe": 11.78,
+    "dy": 5.44,
+    "pb": 3.17,
+    "rev_ym": "2026-10",
+    "rev_yoy": 172.78573879580568,
+    "rev_mom": 10.261376119700172,
+    "eps_period": "2026Q3",
+    "eps_ytd": 15.94,
+    "eps_q": [
+     [
+      "2024Q4",
+      2.96
+     ],
+     [
+      "2025Q1",
+      3.34
+     ],
+     [
+      "2025Q2",
+      3.42
+     ],
+     [
+      "2025Q3",
+      3.2
+     ],
+     [
+      "2025Q4",
+      7.01
+     ],
+     [
+      "2026Q1",
+      3.63
+     ],
+     [
+      "2026Q2",
+      4.06
+     ],
+     [
+      "2026Q3",
+      8.2
+     ]
+    ],
+    "eps_q_yoy": 156.2,
+    "gross_margin": 22.8,
+    "op_margin": 12.2,
+    "foreign": 3,
+    "trust": 0,
+    "dealer": 2,
+    "inst": 5,
+    "foreign_5d": 16,
+    "trust_5d": 0,
+    "foreign_streak": 1,
+    "trust_streak": 0,
+    "margin": 1640.0,
+    "margin_chg": 13.0,
+    "short": 7.0,
+    "short_chg": 2.0,
+    "bias20": 0.8,
+    "ret_5d": 1.5,
+    "ret_20d": -5.6
+   },
+   "fund_score": 92.5,
+   "flow_score": 76.7,
+   "tags": [
+    "10月營收 YoY +173%",
+    "單季 EPS YoY +156%",
+    "本益比 11.8",
+    "殖利率 5.4%",
+    "外資 +3 張",
+    "融資 +13 張"
+   ],
+   "warnings": [],
+   "score": 73.4,
+   "signal": "看多",
+   "buy": 84,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 1
+  },
+  {
+   "code": "2545",
+   "buzz": 137.0,
+   "posts": 1.0,
+   "comments": 132,
+   "push": 86,
+   "boo": 4,
+   "sentiment": -0.059,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "[情報] 2545 皇翔 買賣聯發科 賠184,604仟元",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795434035.A.F22.html",
+     "src": "PTT",
+     "nrec": "89"
+    }
+   ],
+   "name": "皇翔",
+   "market": "上市",
+   "close": 30.1,
+   "pct": -0.99,
+   "buzz_score": 66.5,
+   "fund": {
+    "pe": 12.75,
+    "dy": 9.3,
+    "pb": 0.76,
+    "rev_ym": "2026-10",
+    "rev_yoy": 1174.2550655542311,
+    "rev_mom": 11.262818560259925,
+    "eps_period": "2026Q3",
+    "eps_ytd": 2.92,
+    "eps_q": [
+     [
+      "2024Q4",
+      1.47
+     ],
+     [
+      "2025Q1",
+      0.35
+     ],
+     [
+      "2025Q2",
+      2.98
+     ],
+     [
+      "2025Q3",
+      -0.53
+     ],
+     [
+      "2025Q4",
+      -0.66
+     ],
+     [
+      "2026Q1",
+      -0.01
+     ],
+     [
+      "2026Q2",
+      2.05
+     ],
+     [
+      "2026Q3",
+      0.88
+     ]
+    ],
+    "eps_turnaround": true,
+    "gross_margin": 40.4,
+    "op_margin": 27.4,
+    "foreign": 98,
+    "trust": 0,
+    "dealer": -23,
+    "inst": 75,
+    "foreign_5d": 397,
+    "trust_5d": 0,
+    "foreign_streak": 2,
+    "trust_streak": 0,
+    "margin": 2160.0,
+    "margin_chg": 2.0,
+    "short": 7.0,
+    "short_chg": 0.0,
+    "bias20": 0.2,
+    "ret_5d": 0.9,
+    "ret_20d": -2.3
+   },
+   "fund_score": 90.0,
+   "flow_score": 81.6,
+   "tags": [
+    "10月營收 YoY +1174%",
+    "單季轉虧為盈",
+    "本益比 12.8",
+    "殖利率 9.3%",
+    "外資 +98 張",
+    "融資 +2 張"
+   ],
+   "warnings": [],
+   "score": 72.4,
+   "signal": "中性",
+   "buy": 83,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 2
+  },
+  {
+   "code": "3310",
+   "buzz": 26,
+   "posts": 0,
+   "comments": 26,
+   "push": 22,
+   "boo": 0,
+   "sentiment": 0.362,
+   "src": [
+    "PTT"
+   ],
+   "links": [],
+   "name": "佳穎",
+   "market": "上櫃",
+   "close": 68.2,
+   "pct": 6.56,
+   "buzz_score": 44.5,
+   "fund": {
+    "pe": 17.02,
+    "dy": 5.47,
+    "pb": 2.47,
+    "rev_ym": "2026-10",
+    "rev_yoy": 82.45198865186316,
+    "rev_mom": 11.917889593547631,
+    "eps_period": "2026Q3",
+    "eps_ytd": 3.27,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.48
+     ],
+     [
+      "2025Q1",
+      2.36
+     ],
+     [
+      "2025Q2",
+      0.19
+     ],
+     [
+      "2025Q3",
+      0.54
+     ],
+     [
+      "2025Q4",
+      0.46
+     ],
+     [
+      "2026Q1",
+      0.34
+     ],
+     [
+      "2026Q2",
+      1.25
+     ],
+     [
+      "2026Q3",
+      1.68
+     ]
+    ],
+    "eps_q_yoy": 211.1,
+    "gross_margin": 19.6,
+    "op_margin": 9.8,
+    "foreign": 1,
+    "trust": 0,
+    "dealer": 0,
+    "inst": 1,
+    "foreign_5d": -7,
+    "trust_5d": 0,
+    "foreign_streak": 3,
+    "trust_streak": 0,
+    "margin": 2142.0,
+    "margin_chg": 0.0,
+    "short": 0.0,
+    "short_chg": 0.0,
+    "bias20": 4.2,
+    "ret_5d": 7.1,
+    "ret_20d": 0.7
+   },
+   "fund_score": 87.5,
+   "flow_score": 64.9,
+   "tags": [
+    "10月營收 YoY +82%",
+    "單季 EPS YoY +211%",
+    "本益比 17.0",
+    "殖利率 5.5%",
+    "外資 +1 張",
+    "外資連買 3 天"
+   ],
+   "warnings": [],
+   "score": 69.1,
+   "signal": "看多",
+   "buy": 76,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    }
+   ],
+   "rank": 3
+  },
+  {
+   "code": "2633",
+   "buzz": 56.0,
+   "posts": 1.4,
+   "comments": 49,
+   "push": 25,
+   "boo": 2,
+   "sentiment": 0.445,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "Re: [標的] 2633 台灣高鐵 多",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795502983.A.21A.html",
+     "src": "PTT",
+     "nrec": "24"
+    }
+   ],
+   "name": "台灣高鐵",
+   "market": "上市",
+   "close": 24.9,
+   "pct": -0.4,
+   "buzz_score": 54.6,
+   "fund": {
+    "pe": 20.41,
+    "dy": 4.62,
+    "pb": 1.96,
+    "rev_ym": "2026-10",
+    "rev_yoy": -3.6980368515899724,
+    "rev_mom": 1.4326067016051232,
+    "eps_period": "2026Q3",
+    "eps_ytd": 0.94,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.24
+     ],
+     [
+      "2025Q1",
+      0.33
+     ],
+     [
+      "2025Q2",
+      0.29
+     ],
+     [
+      "2025Q3",
+      0.27
+     ],
+     [
+      "2025Q4",
+      0.28
+     ],
+     [
+      "2026Q1",
+      0.37
+     ],
+     [
+      "2026Q2",
+      0.3
+     ],
+     [
+      "2026Q3",
+      0.27
+     ]
+    ],
+    "eps_q_yoy": 0.0,
+    "gross_margin": 42.6,
+    "op_margin": 38.6,
+    "foreign": 2118,
+    "trust": 248,
+    "dealer": -81,
+    "inst": 2285,
+    "foreign_5d": 2005,
+    "trust_5d": -55,
+    "foreign_streak": 1,
+    "trust_streak": 1,
+    "margin": 2263.0,
+    "margin_chg": -3.0,
+    "short": 52.0,
+    "short_chg": -2.0,
+    "bias20": 0.3,
+    "ret_5d": 1.2,
+    "ret_20d": -2.8
+   },
+   "fund_score": 58.6,
+   "flow_score": 85.0,
+   "tags": [
+    "10月營收 YoY -4%",
+    "單季 EPS YoY +0%",
+    "本益比 20.4",
+    "殖利率 4.6%",
+    "外資 +2,118 張",
+    "投信 +248 張",
+    "融資 -3 張"
+   ],
+   "warnings": [],
+   "score": 66.6,
+   "signal": "看多",
+   "buy": 76,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    },
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    }
+   ],
+   "rank": 4
+  },
+  {
+   "code": "00652",
+   "buzz": 49.0,
+   "posts": 1.0,
+   "comments": 44,
+   "push": 32,
+   "boo": 0,
+   "sentiment": 0.236,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "[標的] 00652富邦印度 多",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795420836.A.C7F.html",
+     "src": "PTT",
+     "nrec": "33"
+    }
+   ],
+   "name": "富邦印度",
+   "market": "上市",
+   "close": 36.98,
+   "pct": 0.22,
+   "buzz_score": 52.8,
+   "fund": {
+    "foreign": 251,
+    "trust": 0,
+    "dealer": 291,
+    "inst": 542,
+    "margin": 80.0,
+    "margin_chg": 31.0
+   },
+   "fund_score": null,
+   "flow_score": 100.0,
+   "tags": [
+    "外資 +251 張",
+    "融資 +31 張"
+   ],
+   "warnings": [],
+   "score": 65.5,
+   "signal": "看多",
+   "buy": 73,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 5
+  },
+  {
+   "code": "3231",
+   "buzz": 66.0,
+   "posts": 2.6,
+   "comments": 53,
+   "push": 32,
+   "boo": 3,
+   "sentiment": 0.109,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "[新聞] 緯創工程師內鬼 盜逾百萬元記憶體賤賣",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795439561.A.4F6.html",
+     "src": "PTT",
+     "nrec": "29"
+    }
+   ],
+   "name": "緯創",
+   "market": "上市",
+   "close": 148.5,
+   "pct": 1.02,
+   "buzz_score": 56.8,
+   "fund": {
+    "pe": 9.98,
+    "dy": 3.7,
+    "pb": 1.91,
+    "rev_ym": "2026-10",
+    "rev_yoy": 117.5572069759596,
+    "rev_mom": 5.726956607488564,
+    "eps_period": "2026Q3",
+    "eps_ytd": 13.54,
+    "eps_q": [
+     [
+      "2024Q4",
+      1.85
+     ],
+     [
+      "2025Q1",
+      1.85
+     ],
+     [
+      "2025Q2",
+      2.2
+     ],
+     [
+      "2025Q3",
+      2.36
+     ],
+     [
+      "2025Q4",
+      2.61
+     ],
+     [
+      "2026Q1",
+      3.06
+     ],
+     [
+      "2026Q2",
+      4.72
+     ],
+     [
+      "2026Q3",
+      5.74
+     ]
+    ],
+    "eps_q_yoy": 143.2,
+    "gross_margin": 5.6,
+    "op_margin": 3.8,
+    "foreign": -2588,
+    "trust": 194,
+    "dealer": 207,
+    "inst": -2188,
+    "foreign_5d": -7633,
+    "trust_5d": 5683,
+    "foreign_streak": -1,
+    "trust_streak": 3,
+    "margin": 43218.0,
+    "margin_chg": -2738.0,
+    "short": 137.0,
+    "short_chg": -20.0,
+    "bias20": -3.5,
+    "ret_5d": 3.8,
+    "ret_20d": -14.4
+   },
+   "fund_score": 92.5,
+   "flow_score": 47.6,
+   "tags": [
+    "10月營收 YoY +118%",
+    "單季 EPS YoY +143%",
+    "本益比 10.0",
+    "外資 -2,588 張",
+    "投信 +194 張",
+    "投信連買 3 天",
+    "融資 -2,738 張"
+   ],
+   "warnings": [],
+   "score": 64.9,
+   "signal": "中性",
+   "buy": 73,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    }
+   ],
+   "rank": 6
+  },
+  {
+   "code": "6531",
+   "buzz": 43.0,
+   "posts": 1.8,
+   "comments": 34,
+   "push": 22,
+   "boo": 0,
+   "sentiment": 0.168,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "[情報] 1123 違約交割 愛普*等4檔",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795430941.A.934.html",
+     "src": "PTT",
+     "nrec": "27"
+    }
+   ],
+   "name": "愛普*",
+   "market": "上市",
+   "close": 515.0,
+   "pct": 6.74,
+   "buzz_score": 51.1,
+   "fund": {
+    "pe": 25.48,
+    "dy": 1.36,
+    "pb": 6.08,
+    "rev_ym": "2026-10",
+    "rev_yoy": 155.8579322164111,
+    "rev_mom": 9.264219448753453,
+    "eps_period": "2026Q3",
+    "eps_ytd": 15.54,
+    "eps_q": [
+     [
+      "2024Q4",
+      3.1
+     ],
+     [
+      "2025Q1",
+      2.04
+     ],
+     [
+      "2025Q2",
+      -3.36
+     ],
+     [
+      "2025Q3",
+      4.34
+     ],
+     [
+      "2025Q4",
+      4.71
+     ],
+     [
+      "2026Q1",
+      4.15
+     ],
+     [
+      "2026Q2",
+      4.18
+     ],
+     [
+      "2026Q3",
+      7.21
+     ]
+    ],
+    "eps_q_yoy": 66.1,
+    "gross_margin": 51.2,
+    "op_margin": 34.3,
+    "foreign": -155,
+    "trust": 0,
+    "dealer": 40,
+    "inst": -116,
+    "foreign_5d": 1664,
+    "trust_5d": -1039,
+    "foreign_streak": -1,
+    "trust_streak": 0,
+    "margin": 4896.0,
+    "margin_chg": -148.0,
+    "short": 26.0,
+    "short_chg": -16.0,
+    "bias20": -15.4,
+    "ret_5d": -5.8,
+    "ret_20d": -30.5
+   },
+   "fund_score": 81.2,
+   "flow_score": 57.9,
+   "tags": [
+    "10月營收 YoY +156%",
+    "單季 EPS YoY +66%",
+    "本益比 25.5",
+    "外資 -155 張",
+    "融資 -148 張"
+   ],
+   "warnings": [],
+   "score": 64.9,
+   "signal": "中性",
+   "buy": 66,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": false,
+     "text": "跌破月線 -15%，趨勢未止穩"
+    }
+   ],
+   "rank": 7
+  },
+  {
+   "code": "1595",
+   "buzz": 116.0,
+   "posts": 0.4,
+   "comments": 114,
+   "push": 62,
+   "boo": 4,
+   "sentiment": 0.15,
+   "src": [
+    "PTT"
+   ],
+   "links": [],
+   "name": "川寶",
+   "market": "上櫃",
+   "close": 48.05,
+   "pct": 9.95,
+   "buzz_score": 64.3,
+   "fund": {
+    "dy": 1.07,
+    "pb": 0.89,
+    "rev_ym": "2026-10",
+    "rev_yoy": 23.081447612283174,
+    "rev_mom": 30.3047748848576,
+    "eps_period": "2026Q3",
+    "eps_ytd": -1.26,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.05
+     ],
+     [
+      "2025Q1",
+      -0.34
+     ],
+     [
+      "2025Q2",
+      -1.06
+     ],
+     [
+      "2025Q3",
+      -0.41
+     ],
+     [
+      "2025Q4",
+      -0.14
+     ],
+     [
+      "2026Q1",
+      -0.74
+     ],
+     [
+      "2026Q2",
+      -0.24
+     ],
+     [
+      "2026Q3",
+      -0.3
+     ]
+    ],
+    "gross_margin": 20.9,
+    "op_margin": -15.2,
+    "foreign": 14,
+    "trust": 0,
+    "dealer": 0,
+    "inst": 14,
+    "foreign_5d": 321,
+    "trust_5d": 0,
+    "foreign_streak": 6,
+    "trust_streak": 0,
+    "margin": 2565.0,
+    "margin_chg": -39.0,
+    "short": 6.0,
+    "short_chg": -2.0,
+    "bias20": -21.0,
+    "ret_5d": -8.0,
+    "ret_20d": -34.4
+   },
+   "fund_score": 42.3,
+   "flow_score": 90.0,
+   "tags": [
+    "10月營收 YoY +23%",
+    "外資 +14 張",
+    "外資連買 6 天",
+    "融資 -39 張"
+   ],
+   "warnings": [
+    "虧損"
+   ],
+   "score": 64.5,
+   "signal": "中性",
+   "buy": 56,
+   "buy_label": "中性觀望",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    },
+    {
+     "pos": false,
+     "text": "虧損"
+    },
+    {
+     "pos": false,
+     "text": "跌破月線 -21%，趨勢未止穩"
+    }
+   ],
+   "rank": 8
+  },
+  {
+   "code": "1815",
+   "buzz": 29.0,
+   "posts": 1.4,
+   "comments": 22,
+   "push": 12,
+   "boo": 0,
+   "sentiment": 0.023,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "[情報] 1123 違約交割 富喬",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795431161.A.E9F.html",
+     "src": "PTT",
+     "nrec": "11"
+    }
+   ],
+   "name": "富喬",
+   "market": "上櫃",
+   "close": 112.5,
+   "pct": 9.76,
+   "buzz_score": 45.9,
+   "fund": {
+    "pe": 25.0,
+    "dy": 0.98,
+    "pb": 4.33,
+    "rev_ym": "2026-10",
+    "rev_yoy": 85.61864445773708,
+    "rev_mom": 11.7534431064353,
+    "eps_period": "2026Q3",
+    "eps_ytd": 3.41,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.3
+     ],
+     [
+      "2025Q1",
+      0.33
+     ],
+     [
+      "2025Q2",
+      -0.06
+     ],
+     [
+      "2025Q3",
+      0.54
+     ],
+     [
+      "2025Q4",
+      0.83
+     ],
+     [
+      "2026Q1",
+      0.79
+     ],
+     [
+      "2026Q2",
+      1.45
+     ],
+     [
+      "2026Q3",
+      1.28
+     ]
+    ],
+    "eps_q_yoy": 137.0,
+    "gross_margin": 42.5,
+    "op_margin": 29.4,
+    "foreign": 35,
+    "trust": 0,
+    "dealer": 270,
+    "inst": 305,
+    "foreign_5d": -10965,
+    "trust_5d": -670,
+    "foreign_streak": 1,
+    "trust_streak": 0,
+    "margin": 42027.0,
+    "margin_chg": 2270.0,
+    "short": 491.0,
+    "short_chg": -260.0,
+    "bias20": -10.8,
+    "ret_5d": -4.7,
+    "ret_20d": -14.1
+   },
+   "fund_score": 87.5,
+   "flow_score": 53.0,
+   "tags": [
+    "10月營收 YoY +86%",
+    "單季 EPS YoY +137%",
+    "本益比 25.0",
+    "外資 +35 張",
+    "融資 +2,270 張"
+   ],
+   "warnings": [],
+   "score": 63.8,
+   "signal": "中性",
+   "buy": 65,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": false,
+     "text": "跌破月線 -11%，趨勢未止穩"
+    }
+   ],
+   "rank": 9
+  },
+  {
+   "code": "3167",
+   "buzz": 43.0,
+   "posts": 3.2,
+   "comments": 27,
+   "push": 11,
+   "boo": 0,
+   "sentiment": -0.054,
+   "src": [
+    "PTT"
+   ],
+   "links": [],
+   "name": "大量",
+   "market": "上市",
+   "close": 559.0,
+   "pct": 9.82,
+   "buzz_score": 51.1,
+   "fund": {
+    "pe": 25.75,
+    "dy": 0.7,
+    "pb": 9.28,
+    "rev_ym": "2026-10",
+    "rev_yoy": 174.90740647903988,
+    "rev_mom": 5.098768564864042,
+    "eps_period": "2026Q3",
+    "eps_ytd": 19.24,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.84
+     ],
+     [
+      "2025Q1",
+      1.02
+     ],
+     [
+      "2025Q2",
+      1.99
+     ],
+     [
+      "2025Q3",
+      2.44
+     ],
+     [
+      "2025Q4",
+      2.68
+     ],
+     [
+      "2026Q1",
+      3.19
+     ],
+     [
+      "2026Q2",
+      6.1
+     ],
+     [
+      "2026Q3",
+      9.94
+     ]
+    ],
+    "eps_q_yoy": 307.4,
+    "gross_margin": 46.4,
+    "op_margin": 29.4,
+    "foreign": -78,
+    "trust": 0,
+    "dealer": 2,
+    "inst": -76,
+    "foreign_5d": 3108,
+    "trust_5d": -840,
+    "foreign_streak": -1,
+    "trust_streak": 0,
+    "margin": 5135.0,
+    "margin_chg": 34.0,
+    "short": 158.0,
+    "short_chg": 114.0,
+    "bias20": -20.3,
+    "ret_5d": -8.1,
+    "ret_20d": -36.0
+   },
+   "fund_score": 81.2,
+   "flow_score": 58.8,
+   "tags": [
+    "10月營收 YoY +175%",
+    "單季 EPS YoY +307%",
+    "本益比 25.8",
+    "外資 -78 張",
+    "融資 +34 張"
+   ],
+   "warnings": [],
+   "score": 63.7,
+   "signal": "中性",
+   "buy": 65,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": false,
+     "text": "跌破月線 -20%，趨勢未止穩"
+    }
+   ],
+   "rank": 10
+  },
+  {
+   "code": "2383",
+   "buzz": 34.0,
+   "posts": 2.8,
+   "comments": 20,
+   "push": 10,
+   "boo": 5,
+   "sentiment": -0.016,
+   "src": [
+    "PTT"
+   ],
+   "links": [],
+   "name": "台光電",
+   "market": "上市",
+   "close": 3090.0,
+   "pct": 9.96,
+   "buzz_score": 48.0,
+   "fund": {
+    "pe": 33.1,
+    "dy": 0.81,
+    "pb": 15.07,
+    "rev_ym": "2026-10",
+    "rev_yoy": 203.07515404377685,
+    "rev_mom": 13.656402518457215,
+    "eps_period": "2026Q3",
+    "eps_ytd": 82.92,
+    "eps_q": [
+     [
+      "2024Q4",
+      7.67
+     ],
+     [
+      "2025Q1",
+      10.01
+     ],
+     [
+      "2025Q2",
+      10.02
+     ],
+     [
+      "2025Q3",
+      11.19
+     ],
+     [
+      "2025Q4",
+      10.44
+     ],
+     [
+      "2026Q1",
+      14.9
+     ],
+     [
+      "2026Q2",
+      27.55
+     ],
+     [
+      "2026Q3",
+      40.47
+     ]
+    ],
+    "eps_q_yoy": 261.7,
+    "gross_margin": 34.5,
+    "op_margin": 27.3,
+    "foreign": -48,
+    "trust": -3,
+    "dealer": 7,
+    "inst": -44,
+    "foreign_5d": 343,
+    "trust_5d": -616,
+    "foreign_streak": -2,
+    "trust_streak": -2,
+    "margin": 2893.0,
+    "margin_chg": 97.0,
+    "short": 22.0,
+    "short_chg": -4.0,
+    "bias20": -15.9,
+    "ret_5d": -4.1,
+    "ret_20d": -28.5
+   },
+   "fund_score": 81.2,
+   "flow_score": 59.4,
+   "tags": [
+    "10月營收 YoY +203%",
+    "單季 EPS YoY +262%",
+    "本益比 33.1",
+    "外資 -48 張",
+    "投信 -3 張",
+    "融資 +97 張"
+   ],
+   "warnings": [],
+   "score": 63.6,
+   "signal": "中性",
+   "buy": 65,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": false,
+     "text": "跌破月線 -16%，趨勢未止穩"
+    }
+   ],
+   "rank": 11,
+   "profile": {
+    "industry": "PCB 銅箔基板",
+    "business": "全球無鹵素銅箔基板龍頭，主攻高頻高速材料，廣泛應用於AI伺服器、交換器及手機，為輝達等雲端大廠核心供應商。",
+    "themes": [
+     "AI 伺服器",
+     "高階銅箔基板",
+     "800G交換器",
+     "GB200概念股",
+     "低軌衛星"
+    ]
+   }
+  },
+  {
+   "code": "2330",
+   "buzz": 474.0,
+   "posts": 15.2,
+   "comments": 398,
+   "push": 232,
+   "boo": 16,
+   "sentiment": 0.185,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "[標的] 2330台積電 00685L群益正二 開盤ALLIN?",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795445217.A.A3E.html",
+     "src": "PTT",
+     "nrec": "47"
+    },
+    {
+     "title": "[新聞] AI 市場雜音頻傳 台積電最新看法來了",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795424703.A.8DA.html",
+     "src": "PTT",
+     "nrec": "74"
+    }
+   ],
+   "name": "台積電",
+   "market": "上市",
+   "close": 2030.0,
+   "pct": 1.5,
+   "buzz_score": 83.2,
+   "fund": {
+    "pe": 20.66,
+    "dy": 1.08,
+    "pb": 7.52,
+    "rev_ym": "2026-10",
+    "rev_yoy": 59.709757600700904,
+    "rev_mom": 14.658949962741477,
+    "eps_period": "2026Q3",
+    "eps_ytd": 78.75,
+    "eps_q": [
+     [
+      "2024Q4",
+      14.45
+     ],
+     [
+      "2025Q1",
+      13.95
+     ],
+     [
+      "2025Q2",
+      15.36
+     ],
+     [
+      "2025Q3",
+      17.44
+     ],
+     [
+      "2025Q4",
+      19.51
+     ],
+     [
+      "2026Q1",
+      22.08
+     ],
+     [
+      "2026Q2",
+      27.25
+     ],
+     [
+      "2026Q3",
+      29.43
+     ]
+    ],
+    "eps_q_yoy": 68.7,
+    "gross_margin": 66.8,
+    "op_margin": 59.0,
+    "foreign": -4098,
+    "trust": 918,
+    "dealer": 388,
+    "inst": -2792,
+    "foreign_5d": -51088,
+    "trust_5d": 3326,
+    "foreign_streak": -9,
+    "trust_streak": 2,
+    "margin": 30970.0,
+    "margin_chg": 1206.0,
+    "short": 53.0,
+    "short_chg": -6.0,
+    "bias20": -0.9,
+    "ret_5d": 2.8,
+    "ret_20d": -7.1
+   },
+   "fund_score": 87.5,
+   "flow_score": 23.3,
+   "tags": [
+    "10月營收 YoY +60%",
+    "單季 EPS YoY +69%",
+    "本益比 20.7",
+    "外資 -4,098 張",
+    "投信 +918 張",
+    "外資連賣 9 天",
+    "融資 +1,206 張"
+   ],
+   "warnings": [],
+   "score": 63.4,
+   "signal": "中性",
+   "buy": 63,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    },
+    {
+     "pos": false,
+     "text": "法人偏賣"
+    }
+   ],
+   "rank": 12,
+   "profile": {
+    "industry": "晶圓代工",
+    "business": "全球晶圓代工龍頭，市占逾六成。提供先進與成熟製程晶圓製造，營收主力為高效能運算與手機，客戶涵蓋蘋果、輝達、超微等。",
+    "themes": [
+     "AI晶片浪潮",
+     "先進製程2奈米",
+     "CoWoS先進封裝",
+     "海外設廠布局",
+     "高效能運算HPC"
+    ]
+   }
+  },
+  {
+   "code": "2317",
+   "buzz": 36.0,
+   "posts": 4.4,
+   "comments": 14,
+   "push": 6,
+   "boo": 1,
+   "sentiment": 0.224,
+   "src": [
+    "PTT"
+   ],
+   "links": [],
+   "name": "鴻海",
+   "market": "上市",
+   "close": 206.0,
+   "pct": -1.9,
+   "buzz_score": 48.8,
+   "fund": {
+    "pe": 12.46,
+    "dy": 3.48,
+    "pb": 1.46,
+    "rev_ym": "2026-10",
+    "rev_yoy": 45.730399518079835,
+    "rev_mom": 12.660294264733395,
+    "eps_period": "2026Q3",
+    "eps_ytd": 13.35,
+    "eps_q": [
+     [
+      "2024Q4",
+      3.34
+     ],
+     [
+      "2025Q1",
+      3.03
+     ],
+     [
+      "2025Q2",
+      3.19
+     ],
+     [
+      "2025Q3",
+      4.15
+     ],
+     [
+      "2025Q4",
+      3.23
+     ],
+     [
+      "2026Q1",
+      3.56
+     ],
+     [
+      "2026Q2",
+      4.27
+     ],
+     [
+      "2026Q3",
+      5.51
+     ]
+    ],
+    "eps_q_yoy": 32.8,
+    "gross_margin": 6.1,
+    "op_margin": 3.7,
+    "foreign": -888,
+    "trust": 2098,
+    "dealer": 802,
+    "inst": 2012,
+    "foreign_5d": -18951,
+    "trust_5d": 4327,
+    "foreign_streak": -3,
+    "trust_streak": 6,
+    "margin": 49422.0,
+    "margin_chg": 620.0,
+    "short": 585.0,
+    "short_chg": -318.0,
+    "bias20": -2.9,
+    "ret_5d": 3.4,
+    "ret_20d": -8.5
+   },
+   "fund_score": 88.2,
+   "flow_score": 51.6,
+   "tags": [
+    "10月營收 YoY +46%",
+    "單季 EPS YoY +33%",
+    "本益比 12.5",
+    "外資 -888 張",
+    "投信 +2,098 張",
+    "投信連買 6 天",
+    "外資連賣 3 天",
+    "融資 +620 張"
+   ],
+   "warnings": [],
+   "score": 63.4,
+   "signal": "看多",
+   "buy": 73,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    }
+   ],
+   "rank": 13
+  },
+  {
+   "code": "2303",
+   "buzz": 34.0,
+   "posts": 4.4,
+   "comments": 12,
+   "push": 6,
+   "boo": 1,
+   "sentiment": 0.307,
+   "src": [
+    "PTT"
+   ],
+   "links": [],
+   "name": "聯電",
+   "market": "上市",
+   "close": 88.3,
+   "pct": 9.96,
+   "buzz_score": 48.0,
+   "fund": {
+    "pe": 13.04,
+    "dy": 2.96,
+    "pb": 2.35,
+    "rev_ym": "2026-10",
+    "rev_yoy": 18.32619283780295,
+    "rev_mom": -0.603141619170104,
+    "eps_period": "2026Q3",
+    "eps_ytd": 6.0,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.68
+     ],
+     [
+      "2025Q1",
+      0.62
+     ],
+     [
+      "2025Q2",
+      0.71
+     ],
+     [
+      "2025Q3",
+      1.2
+     ],
+     [
+      "2025Q4",
+      0.8
+     ],
+     [
+      "2026Q1",
+      1.29
+     ],
+     [
+      "2026Q2",
+      3.39
+     ],
+     [
+      "2026Q3",
+      1.32
+     ]
+    ],
+    "eps_q_yoy": 10.0,
+    "gross_margin": 32.0,
+    "op_margin": 22.0,
+    "foreign": -18764,
+    "trust": -100,
+    "dealer": 121,
+    "inst": -18744,
+    "foreign_5d": 79870,
+    "trust_5d": -43854,
+    "foreign_streak": -1,
+    "trust_streak": -1,
+    "margin": 106103.0,
+    "margin_chg": 4163.0,
+    "short": 4326.0,
+    "short_chg": 2890.0,
+    "bias20": -3.0,
+    "ret_5d": 5.1,
+    "ret_20d": -20.7
+   },
+   "fund_score": 74.4,
+   "flow_score": 52.2,
+   "tags": [
+    "10月營收 YoY +18%",
+    "單季 EPS YoY +10%",
+    "本益比 13.0",
+    "外資 -18,764 張",
+    "投信 -100 張",
+    "融資 +4,163 張"
+   ],
+   "warnings": [],
+   "score": 63.0,
+   "signal": "看多",
+   "buy": 69,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    }
+   ],
+   "rank": 14
+  },
+  {
+   "code": "0050",
+   "buzz": 1642.0,
+   "posts": 13.8,
+   "comments": 1573,
+   "push": 917,
+   "boo": 79,
+   "sentiment": 0.184,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "Re: [新聞] 哲哲狠砸3千萬抄底0050　今亮燈漲停",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795502349.A.C0C.html",
+     "src": "PTT",
+     "nrec": "25"
+    },
+    {
+     "title": "Re: [新聞] 哲哲狠砸3千萬抄底0050　今亮燈漲停「帳",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795500664.A.68A.html",
+     "src": "PTT",
+     "nrec": "34"
+    },
+    {
+     "title": "[新聞] 哲哲狠砸3千萬抄底0050　今亮燈漲停「帳",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795495662.A.B73.html",
+     "src": "PTT",
+     "nrec": "99"
+    },
+    {
+     "title": "[請益] 明天追買0050還來得及嗎？",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795446511.A.7CA.html",
+     "src": "PTT",
+     "nrec": "爆"
+    },
+    {
+     "title": "[新聞] 2.3億買0050「虧損3000萬」哲哲堅持不賣",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795444819.A.0D6.html",
+     "src": "PTT",
+     "nrec": "爆"
+    }
+   ],
+   "name": "元大台灣50",
+   "market": "上市",
+   "close": 87.0,
+   "pct": 3.02,
+   "buzz_score": 100.0,
+   "fund": {
+    "foreign": -4136,
+    "trust": 0,
+    "dealer": 1564,
+    "inst": -2572,
+    "margin": 71654.0,
+    "margin_chg": 12251.0,
+    "short": 484.0,
+    "short_chg": 69.0
+   },
+   "fund_score": null,
+   "flow_score": 48.7,
+   "tags": [
+    "外資 -4,136 張",
+    "融資 +12,251 張"
+   ],
+   "warnings": [],
+   "score": 62.3,
+   "signal": "中性",
+   "buy": 50,
+   "buy_label": "中性觀望",
+   "buy_why": [],
+   "rank": 15
+  },
+  {
+   "code": "3006",
+   "buzz": 63.0,
+   "posts": 0.8,
+   "comments": 59,
+   "push": 32,
+   "boo": 4,
+   "sentiment": -0.076,
+   "src": [
+    "PTT"
+   ],
+   "links": [],
+   "name": "晶豪科",
+   "market": "上市",
+   "close": 191.5,
+   "pct": 9.43,
+   "buzz_score": 56.2,
+   "fund": {
+    "pe": 2.69,
+    "dy": 0.52,
+    "pb": 1.79,
+    "rev_ym": "2026-10",
+    "rev_yoy": 430.0611365734368,
+    "rev_mom": -12.261899544135463,
+    "eps_period": "2026Q3",
+    "eps_ytd": 64.54,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.39
+     ],
+     [
+      "2025Q1",
+      -0.27
+     ],
+     [
+      "2025Q2",
+      -2.59
+     ],
+     [
+      "2025Q3",
+      0.05
+     ],
+     [
+      "2025Q4",
+      3.68
+     ],
+     [
+      "2026Q1",
+      7.22
+     ],
+     [
+      "2026Q2",
+      20.21
+     ],
+     [
+      "2026Q3",
+      36.79
+     ]
+    ],
+    "gross_margin": 69.6,
+    "op_margin": 52.1,
+    "foreign": -15508,
+    "trust": 5,
+    "dealer": -1281,
+    "inst": -16784,
+    "foreign_5d": -14608,
+    "trust_5d": 50,
+    "foreign_streak": -2,
+    "trust_streak": 3,
+    "margin": 13100.0,
+    "margin_chg": 860.0,
+    "short": 251.0,
+    "short_chg": 48.0,
+    "bias20": -18.9,
+    "ret_5d": -13.8,
+    "ret_20d": -26.7
+   },
+   "fund_score": 90.0,
+   "flow_score": 36.7,
+   "tags": [
+    "10月營收 YoY +430%",
+    "本益比 2.7",
+    "外資 -15,508 張",
+    "投信 +5 張",
+    "投信連買 3 天",
+    "融資 +860 張"
+   ],
+   "warnings": [],
+   "score": 61.5,
+   "signal": "中性",
+   "buy": 60,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": false,
+     "text": "法人偏賣"
+    },
+    {
+     "pos": false,
+     "text": "跌破月線 -19%，趨勢未止穩"
+    }
+   ],
+   "rank": 16
+  },
+  {
+   "code": "3037",
+   "buzz": 76.0,
+   "posts": 3.4,
+   "comments": 59,
+   "push": 34,
+   "boo": 1,
+   "sentiment": 0.136,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "Re: [標的] 3037欣興多",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795404396.A.999.html",
+     "src": "PTT",
+     "nrec": "28"
+    }
+   ],
+   "name": "欣興",
+   "market": "上市",
+   "close": 558.0,
+   "pct": 3.91,
+   "buzz_score": 58.7,
+   "fund": {
+    "pe": 28.88,
+    "dy": 0.35,
+    "pb": 5.16,
+    "rev_ym": "2026-10",
+    "rev_yoy": 67.61651572185568,
+    "rev_mom": 1.7983688422282105,
+    "eps_period": "2026Q3",
+    "eps_ytd": 17.85,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.04
+     ],
+     [
+      "2025Q1",
+      0.6
+     ],
+     [
+      "2025Q2",
+      0.02
+     ],
+     [
+      "2025Q3",
+      1.44
+     ],
+     [
+      "2025Q4",
+      2.32
+     ],
+     [
+      "2026Q1",
+      3.28
+     ],
+     [
+      "2026Q2",
+      8.45
+     ],
+     [
+      "2026Q3",
+      6.36
+     ]
+    ],
+    "eps_q_yoy": 341.7,
+    "gross_margin": 24.5,
+    "op_margin": 15.0,
+    "foreign": -77,
+    "trust": -113,
+    "dealer": 3,
+    "inst": -188,
+    "foreign_5d": -5917,
+    "trust_5d": -1072,
+    "foreign_streak": -2,
+    "trust_streak": -2,
+    "margin": 33232.0,
+    "margin_chg": -19.0,
+    "short": 61.0,
+    "short_chg": -100.0,
+    "bias20": -22.3,
+    "ret_5d": -3.8,
+    "ret_20d": -42.2
+   },
+   "fund_score": 81.2,
+   "flow_score": 39.5,
+   "tags": [
+    "10月營收 YoY +68%",
+    "單季 EPS YoY +342%",
+    "本益比 28.9",
+    "外資 -77 張",
+    "投信 -113 張",
+    "融資 -19 張"
+   ],
+   "warnings": [],
+   "score": 60.8,
+   "signal": "中性",
+   "buy": 59,
+   "buy_label": "中性觀望",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": false,
+     "text": "法人偏賣"
+    },
+    {
+     "pos": false,
+     "text": "跌破月線 -22%，趨勢未止穩"
+    }
+   ],
+   "rank": 17
+  },
+  {
+   "code": "2382",
+   "buzz": 22.0,
+   "posts": 3.6,
+   "comments": 4,
+   "push": 0,
+   "boo": 1,
+   "sentiment": 0.057,
+   "src": [
+    "PTT"
+   ],
+   "links": [],
+   "name": "廣達",
+   "market": "上市",
+   "close": 257.0,
+   "pct": 1.98,
+   "buzz_score": 42.3,
+   "fund": {
+    "pe": 10.49,
+    "dy": 6.07,
+    "pb": 3.06,
+    "rev_ym": "2026-10",
+    "rev_yoy": 103.9601585472691,
+    "rev_mom": 8.592360033350065,
+    "eps_period": "2026Q3",
+    "eps_ytd": 20.03,
+    "eps_q": [
+     [
+      "2024Q4",
+      4.12
+     ],
+     [
+      "2025Q1",
+      5.06
+     ],
+     [
+      "2025Q2",
+      4.37
+     ],
+     [
+      "2025Q3",
+      4.26
+     ],
+     [
+      "2025Q4",
+      5.75
+     ],
+     [
+      "2026Q1",
+      5.5
+     ],
+     [
+      "2026Q2",
+      7.43
+     ],
+     [
+      "2026Q3",
+      7.08
+     ]
+    ],
+    "eps_q_yoy": 66.2,
+    "gross_margin": 4.9,
+    "op_margin": 3.0,
+    "foreign": -12734,
+    "trust": 4331,
+    "dealer": -474,
+    "inst": -8877,
+    "foreign_5d": -18536,
+    "trust_5d": 11777,
+    "foreign_streak": -2,
+    "trust_streak": 6,
+    "margin": 13279.0,
+    "margin_chg": -266.0,
+    "short": 109.0,
+    "short_chg": -121.0,
+    "bias20": -2.3,
+    "ret_5d": 7.6,
+    "ret_20d": -13.7
+   },
+   "fund_score": 92.5,
+   "flow_score": 43.3,
+   "tags": [
+    "10月營收 YoY +104%",
+    "單季 EPS YoY +66%",
+    "本益比 10.5",
+    "殖利率 6.1%",
+    "外資 -12,734 張",
+    "投信 +4,331 張",
+    "投信連買 6 天",
+    "融資 -266 張"
+   ],
+   "warnings": [],
+   "score": 60.6,
+   "signal": "中性",
+   "buy": 71,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    }
+   ],
+   "rank": 18
+  },
+  {
+   "code": "1303",
+   "buzz": 25.0,
+   "posts": 3.2,
+   "comments": 9,
+   "push": 7,
+   "boo": 1,
+   "sentiment": 0.056,
+   "src": [
+    "PTT"
+   ],
+   "links": [],
+   "name": "南亞",
+   "market": "上市",
+   "close": 226.5,
+   "pct": 9.95,
+   "buzz_score": 44.0,
+   "fund": {
+    "pe": 21.19,
+    "dy": 0.35,
+    "pb": 3.37,
+    "rev_ym": "2026-10",
+    "rev_yoy": 64.59509485803973,
+    "rev_mom": 1.5083141733268424,
+    "eps_period": "2026Q3",
+    "eps_ytd": 10.07,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.04
+     ],
+     [
+      "2025Q1",
+      0.06
+     ],
+     [
+      "2025Q2",
+      -0.52
+     ],
+     [
+      "2025Q3",
+      0.41
+     ],
+     [
+      "2025Q4",
+      0.62
+     ],
+     [
+      "2026Q1",
+      1.8
+     ],
+     [
+      "2026Q2",
+      3.37
+     ],
+     [
+      "2026Q3",
+      4.9
+     ]
+    ],
+    "eps_q_yoy": 999.0,
+    "gross_margin": 19.1,
+    "op_margin": 13.5,
+    "foreign": -3633,
+    "trust": 0,
+    "dealer": 97,
+    "inst": -3536,
+    "foreign_5d": -19857,
+    "trust_5d": -5117,
+    "foreign_streak": -2,
+    "trust_streak": 0,
+    "margin": 40371.0,
+    "margin_chg": 5290.0,
+    "short": 1916.0,
+    "short_chg": -620.0,
+    "bias20": -8.2,
+    "ret_5d": -4.8,
+    "ret_20d": -16.3
+   },
+   "fund_score": 87.5,
+   "flow_score": 36.6,
+   "tags": [
+    "10月營收 YoY +65%",
+    "單季 EPS 倍增",
+    "本益比 21.2",
+    "外資 -3,633 張",
+    "融資 +5,290 張"
+   ],
+   "warnings": [],
+   "score": 59.7,
+   "signal": "中性",
+   "buy": 67,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    },
+    {
+     "pos": false,
+     "text": "法人偏賣"
+    }
+   ],
+   "rank": 19
+  },
+  {
+   "code": "3044",
+   "buzz": 36.0,
+   "posts": 1.8,
+   "comments": 27,
+   "push": 17,
+   "boo": 0,
+   "sentiment": 0.191,
+   "src": [
+    "PTT"
+   ],
+   "links": [
+    {
+     "title": "[標的] 健鼎適合ALL IN嗎?",
+     "url": "https://www.ptt.cc/bbs/Stock/M.1795448206.A.A67.html",
+     "src": "PTT",
+     "nrec": "16"
+    }
+   ],
+   "name": "健鼎",
+   "market": "上市",
+   "close": 442.5,
+   "pct": 9.94,
+   "buzz_score": 48.8,
+   "fund": {
+    "pe": 14.92,
+    "dy": 2.87,
+    "pb": 3.73,
+    "rev_ym": "2026-10",
+    "rev_yoy": 70.32634159542289,
+    "rev_mom": -0.10446106897586079,
+    "eps_period": "2026Q3",
+    "eps_ytd": 24.95,
+    "eps_q": [
+     [
+      "2024Q4",
+      4.24
+     ],
+     [
+      "2025Q1",
+      4.48
+     ],
+     [
+      "2025Q2",
+      4.65
+     ],
+     [
+      "2025Q3",
+      5.62
+     ],
+     [
+      "2025Q4",
+      4.7
+     ],
+     [
+      "2026Q1",
+      5.61
+     ],
+     [
+      "2026Q2",
+      7.41
+     ],
+     [
+      "2026Q3",
+      11.94
+     ]
+    ],
+    "eps_q_yoy": 112.5,
+    "gross_margin": 31.0,
+    "op_margin": 23.4,
+    "foreign": -315,
+    "trust": -445,
+    "dealer": 133,
+    "inst": -627,
+    "foreign_5d": -5081,
+    "trust_5d": 1801,
+    "foreign_streak": -10,
+    "trust_streak": -1,
+    "margin": 5786.0,
+    "margin_chg": -26.0,
+    "short": 48.0,
+    "short_chg": 33.0,
+    "bias20": 1.2,
+    "ret_5d": 11.1,
+    "ret_20d": -6.8
+   },
+   "fund_score": 92.5,
+   "flow_score": 18.2,
+   "tags": [
+    "10月營收 YoY +70%",
+    "單季 EPS YoY +112%",
+    "本益比 14.9",
+    "外資 -315 張",
+    "投信 -445 張",
+    "外資連賣 10 天",
+    "融資 -26 張"
+   ],
+   "warnings": [],
+   "score": 59.0,
+   "signal": "中性",
+   "buy": 63,
+   "buy_label": "偏多觀察",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    },
+    {
+     "pos": false,
+     "text": "法人偏賣"
+    }
+   ],
+   "rank": 20
+  }
+ ],
+ "flow_picks": [
+  {
+   "code": "2610",
+   "name": "華航",
+   "market": "上市",
+   "close": 21.1,
+   "pct": -0.94,
+   "fund": {
+    "pe": 8.83,
+    "dy": 3.84,
+    "pb": 1.24,
+    "rev_ym": "2026-10",
+    "rev_yoy": 22.364206665604453,
+    "rev_mom": 5.841712878667909,
+    "eps_period": "2026Q3",
+    "eps_ytd": 1.8,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.67
+     ],
+     [
+      "2025Q1",
+      0.69
+     ],
+     [
+      "2025Q2",
+      0.63
+     ],
+     [
+      "2025Q3",
+      0.49
+     ],
+     [
+      "2025Q4",
+      0.61
+     ],
+     [
+      "2026Q1",
+      0.85
+     ],
+     [
+      "2026Q2",
+      0.23
+     ],
+     [
+      "2026Q3",
+      0.72
+     ]
+    ],
+    "eps_q_yoy": 46.9,
+    "gross_margin": 16.2,
+    "op_margin": 8.5,
+    "foreign": 15908,
+    "trust": 9767,
+    "dealer": 822,
+    "inst": 26497,
+    "foreign_5d": 36775,
+    "trust_5d": 8205,
+    "foreign_streak": 10,
+    "trust_streak": 1,
+    "margin": 30718.0,
+    "margin_chg": -35.0,
+    "short": 455.0,
+    "short_chg": -46.0,
+    "bias20": 3.3,
+    "ret_5d": -2.6,
+    "ret_20d": 10.0
+   },
+   "fund_score": 85.1,
+   "flow_score": 90.0,
+   "tags": [
+    "10月營收 YoY +22%",
+    "單季 EPS YoY +47%",
+    "本益比 8.8",
+    "外資 +15,908 張",
+    "投信 +9,767 張",
+    "外資連買 10 天",
+    "融資 -35 張"
+   ],
+   "warnings": [],
+   "score": 87.8,
+   "signal": "法人買",
+   "buy": 83,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 1
+  },
+  {
+   "code": "2101",
+   "name": "南港",
+   "market": "上市",
+   "close": 25.0,
+   "pct": -3.66,
+   "fund": {
+    "pe": 3.39,
+    "dy": 2.8,
+    "pb": 1.13,
+    "rev_ym": "2026-10",
+    "rev_yoy": 481.8567713692403,
+    "rev_mom": 30.84748828863698,
+    "eps_period": "2026Q3",
+    "eps_ytd": 5.81,
+    "eps_q": [
+     [
+      "2024Q4",
+      -0.25
+     ],
+     [
+      "2025Q1",
+      -0.11
+     ],
+     [
+      "2025Q2",
+      -0.35
+     ],
+     [
+      "2025Q3",
+      0.09
+     ],
+     [
+      "2025Q4",
+      1.38
+     ],
+     [
+      "2026Q1",
+      1.86
+     ],
+     [
+      "2026Q2",
+      2.21
+     ],
+     [
+      "2026Q3",
+      1.74
+     ]
+    ],
+    "gross_margin": 41.7,
+    "op_margin": 31.8,
+    "foreign": 963,
+    "trust": 0,
+    "dealer": -48,
+    "inst": 916,
+    "foreign_5d": 709,
+    "trust_5d": 1,
+    "foreign_streak": 1,
+    "trust_streak": 0,
+    "margin": 16284.0,
+    "margin_chg": -109.0,
+    "short": 10.0,
+    "short_chg": -2.0,
+    "bias20": -3.8,
+    "ret_5d": -5.4,
+    "ret_20d": -7.5
+   },
+   "fund_score": 90.0,
+   "flow_score": 85.0,
+   "tags": [
+    "10月營收 YoY +482%",
+    "本益比 3.4",
+    "外資 +963 張",
+    "融資 -109 張"
+   ],
+   "warnings": [],
+   "score": 87.2,
+   "signal": "法人買",
+   "buy": 86,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 2
+  },
+  {
+   "code": "1808",
+   "name": "潤隆",
+   "market": "上市",
+   "close": 34.85,
+   "pct": 0.0,
+   "fund": {
+    "pe": 5.65,
+    "dy": 4.3,
+    "pb": 2.0,
+    "rev_ym": "2026-10",
+    "rev_yoy": 41625.77535624476,
+    "rev_mom": -18.464900032021855,
+    "eps_period": "2026Q3",
+    "eps_ytd": 3.17,
+    "eps_q": [
+     [
+      "2024Q4",
+      -0.24
+     ],
+     [
+      "2025Q1",
+      -0.15
+     ],
+     [
+      "2025Q2",
+      -0.08
+     ],
+     [
+      "2025Q3",
+      -0.14
+     ],
+     [
+      "2025Q4",
+      1.73
+     ],
+     [
+      "2026Q1",
+      1.06
+     ],
+     [
+      "2026Q2",
+      1.46
+     ],
+     [
+      "2026Q3",
+      0.61
+     ]
+    ],
+    "eps_turnaround": true,
+    "gross_margin": 26.9,
+    "op_margin": 21.7,
+    "foreign": 632,
+    "trust": 0,
+    "dealer": 6,
+    "inst": 638,
+    "foreign_5d": 931,
+    "trust_5d": 0,
+    "foreign_streak": 3,
+    "trust_streak": 0,
+    "margin": 2988.0,
+    "margin_chg": -49.0,
+    "bias20": 5.3,
+    "ret_5d": 15.4,
+    "ret_20d": 3.1
+   },
+   "fund_score": 90.0,
+   "flow_score": 83.3,
+   "tags": [
+    "10月營收 YoY +41626%",
+    "單季轉虧為盈",
+    "本益比 5.7",
+    "殖利率 4.3%",
+    "外資 +632 張",
+    "外資連買 3 天",
+    "融資 -49 張"
+   ],
+   "warnings": [],
+   "score": 86.3,
+   "signal": "法人買",
+   "buy": 83,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 3
+  },
+  {
+   "code": "2542",
+   "name": "興富發",
+   "market": "上市",
+   "close": 36.6,
+   "pct": 1.39,
+   "fund": {
+    "pe": 7.35,
+    "dy": 10.93,
+    "pb": 1.48,
+    "rev_ym": "2026-10",
+    "rev_yoy": 31.680716430662905,
+    "rev_mom": -13.809910827509475,
+    "eps_period": "2026Q3",
+    "eps_ytd": 3.83,
+    "eps_q": [
+     [
+      "2024Q4",
+      1.61
+     ],
+     [
+      "2025Q1",
+      0.0
+     ],
+     [
+      "2025Q2",
+      0.24
+     ],
+     [
+      "2025Q3",
+      0.72
+     ],
+     [
+      "2025Q4",
+      1.15
+     ],
+     [
+      "2026Q1",
+      1.15
+     ],
+     [
+      "2026Q2",
+      1.3
+     ],
+     [
+      "2026Q3",
+      1.38
+     ]
+    ],
+    "eps_q_yoy": 91.7,
+    "gross_margin": 32.1,
+    "op_margin": 25.4,
+    "foreign": -68,
+    "trust": 1983,
+    "dealer": -65,
+    "inst": 1849,
+    "foreign_5d": 4737,
+    "trust_5d": 2752,
+    "foreign_streak": -1,
+    "trust_streak": 3,
+    "margin": 2637.0,
+    "margin_chg": -16.0,
+    "short": 10.0,
+    "short_chg": -1.0,
+    "bias20": 1.9,
+    "ret_5d": 2.0,
+    "ret_20d": -3.4
+   },
+   "fund_score": 89.4,
+   "flow_score": 83.3,
+   "tags": [
+    "10月營收 YoY +32%",
+    "單季 EPS YoY +92%",
+    "本益比 7.3",
+    "殖利率 10.9%",
+    "外資 -68 張",
+    "投信 +1,983 張",
+    "投信連買 3 天",
+    "融資 -16 張"
+   ],
+   "warnings": [],
+   "score": 86.0,
+   "signal": "法人買",
+   "buy": 85,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 4
+  },
+  {
+   "code": "2547",
+   "name": "日勝生",
+   "market": "上市",
+   "close": 8.75,
+   "pct": -0.46,
+   "fund": {
+    "pe": 23.03,
+    "dy": 9.14,
+    "pb": 0.66,
+    "rev_ym": "2026-10",
+    "rev_yoy": 193.20885592758208,
+    "rev_mom": 21.263426819268044,
+    "eps_period": "2026Q3",
+    "eps_ytd": 0.3,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.18
+     ],
+     [
+      "2025Q1",
+      2.89
+     ],
+     [
+      "2025Q2",
+      -0.02
+     ],
+     [
+      "2025Q3",
+      0.03
+     ],
+     [
+      "2025Q4",
+      0.07
+     ],
+     [
+      "2026Q1",
+      0.06
+     ],
+     [
+      "2026Q2",
+      -0.04
+     ],
+     [
+      "2026Q3",
+      0.28
+     ]
+    ],
+    "gross_margin": 38.0,
+    "op_margin": 18.0,
+    "foreign": 583,
+    "trust": -121,
+    "dealer": -97,
+    "inst": 366,
+    "foreign_5d": 1032,
+    "trust_5d": -96,
+    "foreign_streak": 1,
+    "trust_streak": -1,
+    "margin": 7260.0,
+    "margin_chg": 21.0,
+    "bias20": -1.9,
+    "ret_5d": -2.5,
+    "ret_20d": -4.3
+   },
+   "fund_score": 83.3,
+   "flow_score": 84.1,
+   "tags": [
+    "10月營收 YoY +193%",
+    "本益比 23.0",
+    "殖利率 9.1%",
+    "外資 +583 張",
+    "投信 -121 張",
+    "融資 +21 張"
+   ],
+   "warnings": [],
+   "score": 83.7,
+   "signal": "法人買",
+   "buy": 84,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 5
+  },
+  {
+   "code": "1210",
+   "name": "大成",
+   "market": "上市",
+   "close": 49.5,
+   "pct": -0.3,
+   "fund": {
+    "pe": 11.7,
+    "dy": 6.06,
+    "pb": 1.54,
+    "rev_ym": "2026-10",
+    "rev_yoy": 14.580437403873324,
+    "rev_mom": -2.1962273928485034,
+    "eps_period": "2026Q3",
+    "eps_ytd": 2.57,
+    "eps_q": [
+     [
+      "2024Q4",
+      1.27
+     ],
+     [
+      "2025Q1",
+      1.05
+     ],
+     [
+      "2025Q2",
+      0.68
+     ],
+     [
+      "2025Q3",
+      0.93
+     ],
+     [
+      "2025Q4",
+      1.66
+     ],
+     [
+      "2026Q1",
+      0.94
+     ],
+     [
+      "2026Q2",
+      0.53
+     ],
+     [
+      "2026Q3",
+      1.09
+     ]
+    ],
+    "eps_q_yoy": 17.2,
+    "gross_margin": 13.8,
+    "op_margin": 4.0,
+    "foreign": 1297,
+    "trust": 500,
+    "dealer": -125,
+    "inst": 1672,
+    "foreign_5d": 1595,
+    "trust_5d": 725,
+    "foreign_streak": 1,
+    "trust_streak": 6,
+    "margin": 525.0,
+    "margin_chg": 27.0,
+    "bias20": 2.4,
+    "ret_5d": 1.2,
+    "ret_20d": 2.0
+   },
+   "fund_score": 74.8,
+   "flow_score": 90.0,
+   "tags": [
+    "10月營收 YoY +15%",
+    "單季 EPS YoY +17%",
+    "本益比 11.7",
+    "殖利率 6.1%",
+    "外資 +1,297 張",
+    "投信 +500 張",
+    "投信連買 6 天",
+    "融資 +27 張"
+   ],
+   "warnings": [],
+   "score": 83.2,
+   "signal": "法人買",
+   "buy": 83,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    },
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    }
+   ],
+   "rank": 6
+  },
+  {
+   "code": "1477",
+   "name": "聚陽",
+   "market": "上市",
+   "close": 221.5,
+   "pct": 0.68,
+   "fund": {
+    "pe": 14.62,
+    "dy": 6.77,
+    "pb": 4.11,
+    "rev_ym": "2026-10",
+    "rev_yoy": 15.052183288662967,
+    "rev_mom": -16.435006988349112,
+    "eps_period": "2026Q3",
+    "eps_ytd": 11.62,
+    "eps_q": [
+     [
+      "2024Q4",
+      3.92
+     ],
+     [
+      "2025Q1",
+      5.15
+     ],
+     [
+      "2025Q2",
+      2.5
+     ],
+     [
+      "2025Q3",
+      3.48
+     ],
+     [
+      "2025Q4",
+      3.52
+     ],
+     [
+      "2026Q1",
+      4.35
+     ],
+     [
+      "2026Q2",
+      3.3
+     ],
+     [
+      "2026Q3",
+      3.97
+     ]
+    ],
+    "eps_q_yoy": 14.1,
+    "gross_margin": 25.1,
+    "op_margin": 14.1,
+    "foreign": -27,
+    "trust": 460,
+    "dealer": 5,
+    "inst": 438,
+    "foreign_5d": 1855,
+    "trust_5d": 1743,
+    "foreign_streak": -1,
+    "trust_streak": 6,
+    "margin": 1091.0,
+    "margin_chg": -87.0,
+    "short": 14.0,
+    "short_chg": -5.0,
+    "bias20": 4.4,
+    "ret_5d": -0.7,
+    "ret_20d": 8.7
+   },
+   "fund_score": 74.2,
+   "flow_score": 90.0,
+   "tags": [
+    "10月營收 YoY +15%",
+    "單季 EPS YoY +14%",
+    "本益比 14.6",
+    "殖利率 6.8%",
+    "外資 -27 張",
+    "投信 +460 張",
+    "投信連買 6 天",
+    "融資 -87 張"
+   ],
+   "warnings": [],
+   "score": 82.9,
+   "signal": "法人買",
+   "buy": 79,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    },
+    {
+     "pos": true,
+     "text": "股價離月線不遠，位階不高"
+    }
+   ],
+   "rank": 7
+  },
+  {
+   "code": "3023",
+   "name": "信邦",
+   "market": "上市",
+   "close": 277.5,
+   "pct": 4.72,
+   "fund": {
+    "pe": 19.67,
+    "dy": 3.6,
+    "pb": 3.75,
+    "rev_ym": "2026-10",
+    "rev_yoy": 31.997039460870244,
+    "rev_mom": 1.18631652407198,
+    "eps_period": "2026Q3",
+    "eps_ytd": 11.16,
+    "eps_q": [
+     [
+      "2024Q4",
+      3.05
+     ],
+     [
+      "2025Q1",
+      3.85
+     ],
+     [
+      "2025Q2",
+      3.16
+     ],
+     [
+      "2025Q3",
+      3.05
+     ],
+     [
+      "2025Q4",
+      2.96
+     ],
+     [
+      "2026Q1",
+      3.6
+     ],
+     [
+      "2026Q2",
+      3.76
+     ],
+     [
+      "2026Q3",
+      3.79
+     ]
+    ],
+    "eps_q_yoy": 24.3,
+    "gross_margin": 24.3,
+    "op_margin": 10.5,
+    "foreign": 251,
+    "trust": 109,
+    "dealer": 0,
+    "inst": 360,
+    "foreign_5d": 760,
+    "trust_5d": 1136,
+    "foreign_streak": 3,
+    "trust_streak": 6,
+    "margin": 999.0,
+    "margin_chg": -12.0,
+    "short": 14.0,
+    "short_chg": 0.0,
+    "bias20": 6.2,
+    "ret_5d": 3.7,
+    "ret_20d": -1.6
+   },
+   "fund_score": 78.1,
+   "flow_score": 86.2,
+   "tags": [
+    "10月營收 YoY +32%",
+    "單季 EPS YoY +24%",
+    "本益比 19.7",
+    "外資 +251 張",
+    "投信 +109 張",
+    "投信連買 6 天",
+    "外資連買 3 天",
+    "融資 -12 張"
+   ],
+   "warnings": [],
+   "score": 82.6,
+   "signal": "法人買",
+   "buy": 80,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 8
+  },
+  {
+   "code": "2618",
+   "name": "長榮航",
+   "market": "上市",
+   "close": 44.2,
+   "pct": -1.01,
+   "fund": {
+    "pe": 8.98,
+    "dy": 4.52,
+    "pb": 1.62,
+    "rev_ym": "2026-10",
+    "rev_yoy": 22.628099873042743,
+    "rev_mom": 11.722621034322238,
+    "eps_period": "2026Q3",
+    "eps_ytd": 3.5,
+    "eps_q": [
+     [
+      "2024Q4",
+      1.39
+     ],
+     [
+      "2025Q1",
+      1.1
+     ],
+     [
+      "2025Q2",
+      1.24
+     ],
+     [
+      "2025Q3",
+      1.09
+     ],
+     [
+      "2025Q4",
+      1.41
+     ],
+     [
+      "2026Q1",
+      1.53
+     ],
+     [
+      "2026Q2",
+      0.71
+     ],
+     [
+      "2026Q3",
+      1.26
+     ]
+    ],
+    "eps_q_yoy": 15.6,
+    "gross_margin": 20.2,
+    "op_margin": 13.6,
+    "foreign": -2755,
+    "trust": 14712,
+    "dealer": 84,
+    "inst": 12042,
+    "foreign_5d": 1532,
+    "trust_5d": 9517,
+    "foreign_streak": -1,
+    "trust_streak": 1,
+    "margin": 12590.0,
+    "margin_chg": 40.0,
+    "short": 1325.0,
+    "short_chg": -129.0,
+    "bias20": 7.3,
+    "ret_5d": 1.0,
+    "ret_20d": 13.2
+   },
+   "fund_score": 77.4,
+   "flow_score": 85.0,
+   "tags": [
+    "10月營收 YoY +23%",
+    "單季 EPS YoY +16%",
+    "本益比 9.0",
+    "殖利率 4.5%",
+    "外資 -2,755 張",
+    "投信 +14,712 張",
+    "融資 +40 張"
+   ],
+   "warnings": [],
+   "score": 81.6,
+   "signal": "法人買",
+   "buy": 79,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 9
+  },
+  {
+   "code": "2453",
+   "name": "凌群",
+   "market": "上市",
+   "close": 52.5,
+   "pct": -0.94,
+   "fund": {
+    "pe": 15.81,
+    "dy": 5.33,
+    "pb": 2.35,
+    "rev_ym": "2026-10",
+    "rev_yoy": 30.776946479621945,
+    "rev_mom": 10.75202113719616,
+    "eps_period": "2026Q3",
+    "eps_ytd": 2.4,
+    "eps_q": [
+     [
+      "2024Q4",
+      0.97
+     ],
+     [
+      "2025Q1",
+      0.89
+     ],
+     [
+      "2025Q2",
+      0.6
+     ],
+     [
+      "2025Q3",
+      0.72
+     ],
+     [
+      "2025Q4",
+      0.92
+     ],
+     [
+      "2026Q1",
+      0.9
+     ],
+     [
+      "2026Q2",
+      0.62
+     ],
+     [
+      "2026Q3",
+      0.87
+     ]
+    ],
+    "eps_q_yoy": 20.8,
+    "gross_margin": 25.0,
+    "op_margin": 4.9,
+    "foreign": 625,
+    "trust": 0,
+    "dealer": -11,
+    "inst": 614,
+    "foreign_5d": 1140,
+    "trust_5d": 0,
+    "foreign_streak": 1,
+    "trust_streak": 0,
+    "margin": 2280.0,
+    "margin_chg": 11.0,
+    "short": 25.0,
+    "short_chg": -6.0,
+    "bias20": 4.1,
+    "ret_5d": -2.5,
+    "ret_20d": 8.1
+   },
+   "fund_score": 76.7,
+   "flow_score": 85.0,
+   "tags": [
+    "10月營收 YoY +31%",
+    "單季 EPS YoY +21%",
+    "本益比 15.8",
+    "殖利率 5.3%",
+    "外資 +625 張",
+    "融資 +11 張"
+   ],
+   "warnings": [],
+   "score": 81.3,
+   "signal": "法人買",
+   "buy": 79,
+   "buy_label": "可考慮買進",
+   "buy_why": [
+    {
+     "pos": true,
+     "text": "基本面強"
+    },
+    {
+     "pos": true,
+     "text": "法人站在買方"
+    }
+   ],
+   "rank": 10
+  }
+ ]
+}
